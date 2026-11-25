@@ -36,3 +36,13 @@ Money = Annotated[
     PlainSerializer(lambda d: f"{quantize(d):.2f}", return_type=str, when_used="always"),
     WithJsonSchema({"type": "string", "pattern": MONEY_PATTERN, "examples": ["1250.00"]}),
 ]
+
+
+def _reject_float(value: Any) -> Any:
+    if isinstance(value, float):
+        raise ValueError("decimal values must be sent as strings or integers, never floats")
+    return value
+
+
+# For non-money decimals (quantities, rates, percents): same no-float rule, JSON as string.
+StrictDecimal = Annotated[Decimal, BeforeValidator(_reject_float)]

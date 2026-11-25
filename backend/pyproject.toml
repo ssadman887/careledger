@@ -47,7 +47,7 @@ extend-exclude = ["alembic/versions"]
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "B", "UP", "N", "S", "SIM", "RUF", "ANN", "DTZ"]
-ignore = ["S101", "B008", "RUF012", "ANN401", "N818", "S105"]
+ignore = ["S101", "B008", "RUF001", "RUF002", "RUF003", "RUF012", "ANN401", "N818", "S105"]
 
 [tool.ruff.lint.per-file-ignores]
 "tests/**" = ["S", "ANN", "N802", "E501"]

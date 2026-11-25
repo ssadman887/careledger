@@ -6,8 +6,8 @@ only. Not for real patient data.**
 
 | Status | |
 |---|---|
-| Current phase | **1 – Ledger core** ✅ |
-| Next | 2 – Patient billing |
+| Current phase | **2 – Patient billing** ✅ |
+| Next | 3 – Insurance and claims |
 
 See [docs/PHASES.md](docs/PHASES.md) for the per-phase checklist.
 
@@ -113,7 +113,14 @@ The `Makefile` wraps the same commands for macOS/Linux.
   balance sheet and account ledger. The database itself rejects unbalanced, edited, deleted or
   closed-period postings.
 
-Try it: sign in as `accountant`, post an entry under **Journal entries → New entry**, then open
+* **Phase 2 – Billing**: synthetic patients and visits, service catalog with effective-dated
+  prices, draft invoices with line discounts and tax, issue (posts AR and departmental revenue),
+  partial payments, deposits, refunds with approval, void with reversal, PDF invoices and
+  receipts. Payment endpoints are idempotent (`Idempotency-Key`).
+
+Try it: sign in as `billing`, open **Patients**, pick a patient, choose **New invoice**, add
+charges, issue it and record a payment. Sign in as `finance` to approve the pending refund under
+**Payments -> Refunds**. Sign in as `accountant`, post an entry under **Journal entries → New entry**, then open
 **Financial reports**. Sign in as `finance` to approve an entry above the threshold.
 
 ## API conventions

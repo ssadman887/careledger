@@ -10,6 +10,10 @@ const RULES = {
   approveJournal: ["finance_manager"],
   managePeriods: ["accountant", "finance_manager"],
   manageUsers: ["admin"],
+  bill: ["billing_clerk"],
+  voidInvoice: ["billing_clerk", "finance_manager"],
+  approveRefund: ["finance_manager"],
+  readLedger: ["accountant", "finance_manager", "auditor"],
 } as const satisfies Record<string, readonly RoleName[]>;
 
 export type Permission = keyof typeof RULES;

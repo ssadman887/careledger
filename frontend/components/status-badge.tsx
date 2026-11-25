@@ -9,6 +9,13 @@ const STYLES: Record<
   rejected: { label: "Rejected", variant: "destructive" },
   open: { label: "Open", variant: "outline" },
   closed: { label: "Closed", variant: "secondary" },
+  draft: { label: "Draft", variant: "outline" },
+  issued: { label: "Issued", variant: "secondary" },
+  partially_paid: { label: "Partially paid", variant: "secondary" },
+  paid: { label: "Paid", variant: "default" },
+  void: { label: "Void", variant: "destructive" },
+  completed: { label: "Completed", variant: "default" },
+  cancelled: { label: "Cancelled", variant: "destructive" },
 };
 
 export function StatusBadge({ status }: { status: string }) {

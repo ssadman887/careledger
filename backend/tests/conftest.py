@@ -53,12 +53,16 @@ def engine() -> Iterator[Engine]:
 
     from app.core.db import engine as app_engine
     from app.core.db import session_scope
+    from seed.billing import seed_catalog, seed_patients, seed_visits
     from seed.ledger import seed_ledger
     from seed.users import seed_roles, seed_users
 
     with session_scope() as s:
         seed_users(s, seed_roles(s))
         seed_ledger(s)
+        # Catalog, patients and visits only: no sample invoices, so ledger/report tests stay exact.
+        seed_catalog(s)
+        seed_visits(s, seed_patients(s))
     yield app_engine
     app_engine.dispose()
 

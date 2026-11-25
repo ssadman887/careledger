@@ -123,7 +123,8 @@ Account codes come from the seeded default hospital chart of accounts (Phase 1).
 | Patient payment – card / bank transfer | 1020 Bank – Operating | 1100 AR – Patients |
 | Patient deposit (unapplied) | 1010 / 1020 | 2200 Patient Deposits |
 | Deposit applied to invoice | 2200 Patient Deposits | 1100 AR – Patients |
-| Refund of a payment | 1100 AR – Patients | 1010 / 1020 |
+| Refund of an invoice payment | 1100 AR – Patients | 1010 / 1020 (or 2200 if the payment came from a deposit) |
+| Refund of a deposit (unapplied part only) | 2200 Patient Deposits | 1010 / 1020 |
 | Claim submitted (insurer portion moved) | 1110 AR – Insurers | 1100 AR – Patients |
 | Remittance received | 1020 Bank – Operating (paid) | 1110 AR – Insurers |
 | Remittance short-pay accepted / partial approval | 4900 Contractual Adjustments | 1110 AR – Insurers |
@@ -133,6 +134,30 @@ Account codes come from the seeded default hospital chart of accounts (Phase 1).
 | Vendor payment | 2010 Accounts Payable | 1020 Bank – Operating |
 | Payroll run posted | 5100 Salaries & Wages (gross) | 2110 Payroll Tax Payable ; 2120 Other Deductions Payable ; 2100 Salaries Payable (net) |
 | Payroll paid | 2100 Salaries Payable | 1020 Bank – Operating |
+
+### Billing implementation (Phase 2)
+
+* `services/posting.py` is the single place that maps business events to accounts; the
+  invoice/payment services call it and `ledger.post_entry` in the same transaction.
+* Invoice issue credits each line's **gross** amount to its department's revenue account
+  (`departments.revenue_account_id`; departments without one use 4950 Other Income), tagging the
+  journal line with `department_id`. Discounts post separately to 4910 so gross revenue stays
+  visible.
+* Line arithmetic (`services/billing_math.py`): `gross = round(qty x price)`,
+  `discount = round(gross x pct)`, `tax = round((gross - discount) x rate)`, ROUND_HALF_UP to
+  cents at every step; invoice totals are sums of rounded lines (CHECK constraints enforce
+  `total = subtotal - discount + tax` on invoices and lines).
+* Catalog lines are priced from the invoice's price list on the line's service date
+  (effective-dated `price_list_items`, no overlaps via a btree_gist exclusion constraint).
+* Money movements: payments (cash -> 1010; card/bank -> 1020), deposits (-> 2200), deposit
+  application (2200 -> 1100), refunds (reverse of the original movement). Refunds above
+  `REFUND_APPROVAL_THRESHOLD` (500.00) wait for a finance manager who did not request them.
+* DB guards (migration 0007): invoice lines frozen once the invoice leaves draft; issued invoice
+  amounts immutable; void invoices immutable; invoices, payments and refunds never deleted.
+* Idempotency (`services/idempotency.py`, table `idempotency_keys`): `POST /payments`,
+  `POST /invoices/{id}/apply-deposit` and `POST /payments/{id}/refunds` accept
+  `Idempotency-Key`. Same key + same body -> stored response, nothing re-executed; same key +
+  different body -> 422 `idempotency_key_reused`; a failed attempt rolls back its key.
 
 ## 5. Claim state machine
 

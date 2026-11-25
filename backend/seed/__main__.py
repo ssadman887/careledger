@@ -5,6 +5,7 @@ import random
 from faker import Faker
 
 from app.core.db import session_scope
+from seed.billing import seed_billing
 from seed.ledger import CHART_OF_ACCOUNTS, seed_ledger
 from seed.users import DEMO_USERS, seed_roles, seed_users
 
@@ -18,8 +19,10 @@ def main() -> None:
         roles = seed_roles(session)
         seed_users(session, roles)
         seed_ledger(session)
+        seed_billing(session)
     print(f"Seeded {len(roles)} roles and {len(DEMO_USERS)} demo users.")
     print(f"Chart of accounts: {len(CHART_OF_ACCOUNTS)} accounts, departments, fiscal periods.")
+    print("Billing: service catalog, price list, 40 synthetic patients, visits, invoices.")
     print("All demo users share DEMO_PASSWORD. See docs/DEMO_USERS.md.")
 
 

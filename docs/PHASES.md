@@ -38,11 +38,25 @@
 - [x] Tests: unbalanced rejected (service + DB), closed-period posting rejected (service + DB), UPDATE/DELETE on posted lines rejected at DB level, reversal nets to zero, Hypothesis invariant (60 random sequences incl. reversals keep TB at exactly zero)
 - [x] Totals: pytest 92 (96% coverage; every service ≥ 88%), Vitest 15, Playwright 7
 
-## Phase 2: Patient billing
+## Phase 2: Patient billing ✅
 
-- [ ] Patients & visits (synthetic), service catalog, price lists with effective dates
-- [ ] Invoices (lines, discounts, tax), lifecycle, void with reversal
-- [ ] Payments (cash, card mock, transfer), partial, deposits, refunds with approval
-- [ ] Idempotency-Key on payment endpoints
-- [ ] Auto-posting per ARCHITECTURE section 4; PDF invoice & receipt
-- [ ] UI: invoice editor, payment recording, invoice list
+- [x] Migrations `0005_patients`, `0006_catalog`, `0007_billing`, `0008_idempotency` (sequences, check constraints, guards)
+- [x] Patients (synthetic MRNs) and visits (outpatient / inpatient / emergency; open, closed, cancelled)
+- [x] Service catalog (26 services, 7 departments) and an effective-dated price list with a mid-year price change
+- [x] Invoices: draft charge capture, line discounts (percent or amount), tax, issue, void with reversal
+- [x] Payments (cash, mock card, bank transfer), partial payments, deposits and deposit application, refunds with approval above 500.00
+- [x] Idempotency-Key on all payment-creating endpoints
+- [x] Auto-posting per ARCHITECTURE section 4 (department revenue, discounts, tax, cash/bank, deposits, refunds)
+- [x] PDF invoice and receipt (ReportLab, synthetic-data notice)
+- [x] Masking of bank references by role; card = last 4 digits only
+- [x] UI: patients (register, visits, deposits), invoice list with filters, new invoice, draft line editor, invoice detail (issue, pay, apply deposit, refund, void, PDF), payments and refunds (finance approval)
+- [x] Tests: invoice -> payment -> ledger balanced, partial payments, void reverses, idempotent retry does not double-post, role restrictions, DB guards, deposits, refund approval, price history, rounding
+- [x] Totals: pytest 135 (95% coverage; every service >= 88%), Vitest 18, Playwright 10
+
+## Phase 3: Insurance and claims
+
+- [ ] Insurers, policies, coverage rules (coverage %, copay, deductible, annual limit)
+- [ ] Claim generation from invoice; lifecycle state machine; denial codes; appeals
+- [ ] Mock insurer adjudication job (configurable rates)
+- [ ] Remittance CSV import and reconciliation; ledger posting
+- [ ] UI: claim worklist and detail with event timeline

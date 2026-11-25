@@ -28,3 +28,9 @@ export function formatDateTime(value: string | null | undefined): string {
   const d = new Date(value);
   return Number.isNaN(d.getTime()) ? "—" : dateTimeFormatter.format(d);
 }
+
+/** "partially_paid" -> "Partially paid" */
+export function humanize(value: string): string {
+  const text = value.replace(/_/g, " ");
+  return text.charAt(0).toUpperCase() + text.slice(1);
+}
