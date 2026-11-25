@@ -11,15 +11,48 @@ only. Not for real patient data.**
 
 See [docs/PHASES.md](docs/PHASES.md) for the per-phase checklist.
 
-## Quick start (Docker, ~5 minutes)
+## Quick start (Windows, native, no Docker, ~5 minutes)
 
-Prerequisites: Docker Desktop (with `docker compose`).
+CareLedger runs directly on Windows: PostgreSQL 16 as a Windows service, Microsoft Garnet as the
+Redis-compatible broker, and the API, worker and web app as local processes. No Docker or
+virtualization is needed.
 
-```bash
-cp .env.example .env          # optional; defaults work for local demo
-docker compose up -d --build  # db, redis, api, worker, web
-docker compose exec api python -m seed   # or: make seed
+**1. Install the prerequisites once** (PowerShell):
+
+```powershell
+winget install -e --id Python.Python.3.12
 ```
+
+```powershell
+winget install -e --id OpenJS.NodeJS.LTS
+```
+
+```powershell
+winget install -e --id PostgreSQL.PostgreSQL.16 --override "--mode unattended --superpassword <choose-one> --serverport 5432"
+```
+
+```powershell
+winget install -e --id Microsoft.Garnet.DN8
+```
+
+Put the PostgreSQL superuser password you chose into `.env` as `POSTGRES_SUPERUSER_PASSWORD=...`
+(copy `.env.example` to `.env` first; `.env` is git-ignored). Setup uses it once to create the
+`careledger` database role.
+
+**2. Set up** (creates `backend\.venv`, installs dependencies, creates the database, migrates, seeds):
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\setup.ps1
+```
+
+**3. Run everything** (Garnet, API, Celery worker, web; each in its own minimized window):
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\dev.ps1
+```
+
+Add `-Production` to serve an optimized build. Stop everything with
+`.\scripts\dev.ps1 -Stop`. Logs go to `logs\api.log`, `logs\worker.log` and `logs\web.log`.
 
 * Web: http://localhost:3000
 * API docs (OpenAPI/Swagger): http://localhost:8000/api/docs
@@ -56,34 +89,21 @@ transaction. Ledger posting rules, the claim state machine and the auto-posting 
 are in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md). Judgement calls are logged in
 [docs/DECISIONS.md](docs/DECISIONS.md).
 
-## Local development (without Docker for the apps)
+## Developer scripts
 
-Python packages always live in a virtual environment (`backend/.venv`); Node packages in
-`frontend/node_modules`.
+Python packages always live in the virtual environment `backend\.venv`; Node packages in
+`frontend\node_modules`. Nothing is installed globally.
 
-```bash
-docker compose up -d db redis                 # or any Postgres 16 on :5432 (user/pass careledger)
-python3.12 -m venv backend/.venv              # Windows: py -3.12 -m venv backend\.venv
-backend/.venv/bin/pip install -e "backend[dev]"   # Windows: backend\.venv\Scripts\pip ...
-cd backend && ../backend/.venv/bin/alembic upgrade head && ../backend/.venv/bin/python -m seed
-../backend/.venv/bin/uvicorn app.main:app --reload --port 8000
-# new terminal
-cd frontend && npm ci && npm run dev
-```
-
-### Make targets
-
-| Command | What it does |
+| Script | What it does |
 |---|---|
-| `make up` / `make down` | Start / stop the full Compose stack |
-| `make migrate` | `alembic upgrade head` in the api container |
-| `make seed` | Deterministic, idempotent synthetic data |
-| `make test` | Backend pytest (needs Postgres on :5432) + frontend Vitest |
-| `make e2e` | Playwright against a running, seeded stack |
-| `make lint` / `make typecheck` | ruff + eslint + prettier / mypy (strict) + tsc |
-| `make gen-client` | Export OpenAPI and regenerate `frontend/lib/api/schema.d.ts` |
+| `scripts\setup.ps1` | One-time setup (re-runnable): venv, dependencies, DB role and databases, migrations, seed |
+| `scripts\dev.ps1` | Start Garnet, API (auto-reload), worker and web; `-Production` for a built web app; `-Stop` to stop |
+| `scripts\seed.ps1` | Apply migrations and reload the deterministic, idempotent demo seed |
+| `scripts\test.ps1` | ruff, mypy, pytest + coverage, `alembic check`, eslint, prettier, tsc, Vitest; `-E2E` adds Playwright; `-Fast` skips lint |
+| `scripts\gen-client.ps1` | Export FastAPI's OpenAPI spec and regenerate the typed TS client |
 
-On Windows without `make`, run the commands from the Makefile directly (they are one-liners).
+If PowerShell refuses to run scripts, prefix with `powershell -ExecutionPolicy Bypass -File`.
+The `Makefile` wraps the same commands for macOS/Linux.
 
 ## What works today
 
@@ -109,8 +129,8 @@ Try it: sign in as `accountant`, post an entry under **Journal entries → New e
 * Backend: pytest + httpx TestClient against real PostgreSQL (each test in a rolled-back
   transaction), Hypothesis for accounting invariants (from Phase 1). `alembic check` runs in CI.
 * Frontend: Vitest + Testing Library for units, Playwright for E2E.
-* CI (`.github/workflows/ci.yml`): lint, types, tests, generated-client drift check, and a
-  `docker compose up --wait` smoke test.
+* CI (`.github/workflows/ci.yml`): lint, types, tests, `alembic check` and generated-client
+  drift check, with PostgreSQL as a CI service.
 
 ## What a production deployment would require
 

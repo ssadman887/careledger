@@ -32,3 +32,6 @@ Thumbs.db
 
 # Local agent tooling
 .claude/
+
+# Native dev logs (scripts/dev.ps1)
+logs/

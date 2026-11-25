@@ -1,5 +1,7 @@
 # Build phases
 
+> Runtime: native Windows (PostgreSQL 16 service + Garnet + local processes via `scripts\dev.ps1`). No Docker; see DECISIONS #28.
+
 ## Phase 0: Foundation ✅
 
 - [x] Repo scaffold matching the spec layout
@@ -20,7 +22,7 @@
 - [x] Generated TS client pipeline (`make gen-client`, openapi-typescript + openapi-fetch)
 - [x] Tests: pytest 40 (94% coverage), Vitest 9, Playwright 3
 - [x] ruff, mypy strict, eslint (no `any`), prettier, pre-commit
-- [x] CI workflow (backend, frontend, compose smoke test)
+- [x] CI workflow (backend, frontend; the compose smoke test was later removed, see DECISIONS #28)
 
 ## Phase 1: Ledger core ✅
 

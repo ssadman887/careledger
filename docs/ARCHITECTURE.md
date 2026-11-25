@@ -13,18 +13,20 @@ flowchart LR
   end
   W -- "typed client<br/>(openapi-fetch)" --> A[FastAPI api<br/>/api/v1]
   A --> P[(PostgreSQL 16)]
-  A -- enqueue --> R[(Redis)]
+  A -- enqueue --> R[(Garnet<br/>Redis protocol)]
   K[Celery worker] -- consume --> R
   K --> P
 ```
 
-| Service  | Purpose                                                              |
-|----------|----------------------------------------------------------------------|
-| `db`     | PostgreSQL 16. Holds all state, plus DB-level accounting safeguards. |
-| `redis`  | Celery broker / result backend.                                      |
-| `api`    | FastAPI app (sync SQLAlchemy 2.0 + psycopg 3), runs migrations on start. |
-| `worker` | Celery worker: invoicing runs, payroll runs, report generation, mock insurer, dunning. |
-| `web`    | Next.js frontend.                                                    |
+Runs natively on Windows (no Docker; see DECISIONS #28). `scripts\dev.ps1` starts everything.
+
+| Process | How it runs | Purpose |
+|---------|-------------|---------|
+| PostgreSQL 16 | Windows service `postgresql-x64-16` | All state, plus DB-level accounting safeguards. |
+| Garnet | `GarnetServer.exe` on 127.0.0.1:6379 | Redis-protocol broker / result backend for Celery. |
+| API | `uvicorn app.main:app` from `backend\.venv` | FastAPI (sync SQLAlchemy 2.0 + psycopg 3); migrations applied by `dev.ps1`. |
+| Worker | `celery -A app.jobs.worker worker --pool=solo` | Invoicing runs, payroll runs, report generation, mock insurer, dunning. |
+| Web | `next dev` / `next start` | Next.js frontend on :3000. |
 
 ## 2. Backend layering
 

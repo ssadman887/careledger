@@ -1,48 +1,55 @@
-# CareLedger developer commands. Python tooling always runs from backend/.venv locally.
+# CareLedger developer commands (native, no Docker). On Windows use scripts\*.ps1 directly;
+# this Makefile wraps the same steps for macOS/Linux shells. Python always runs from backend/.venv.
 ifeq ($(OS),Windows_NT)
   VENV_BIN := backend/.venv/Scripts
 else
   VENV_BIN := backend/.venv/bin
 endif
 PY := $(abspath $(VENV_BIN))/python
-COMPOSE := docker compose
+PS := powershell -NoProfile -ExecutionPolicy Bypass -File
 
-.PHONY: help up down logs migrate seed test test-backend test-frontend e2e lint typecheck format gen-client venv install
+.PHONY: help setup up down migrate seed test test-backend test-frontend e2e lint typecheck format gen-client
 
 help:
-	@echo "up | down | logs | migrate | seed | test | e2e | lint | typecheck | format | gen-client | install"
+	@echo "setup | up | down | migrate | seed | test | e2e | lint | typecheck | format | gen-client"
 
-up:            ## Build and start db, redis, api, worker, web
-	$(COMPOSE) up -d --build
-
+ifeq ($(OS),Windows_NT)
+setup:         ## venv, deps, database, migrations, seed
+	$(PS) scripts/setup.ps1
+up:            ## Garnet + API + worker + web
+	$(PS) scripts/dev.ps1
 down:
-	$(COMPOSE) down
-
-logs:
-	$(COMPOSE) logs -f api worker web
-
-migrate:       ## Apply migrations inside the api container
-	$(COMPOSE) exec api alembic upgrade head
-
-seed:          ## Deterministic, idempotent synthetic data
-	$(COMPOSE) exec api python -m seed
-
-venv:
-	python3.12 -m venv backend/.venv || py -3.12 -m venv backend/.venv
-
-install: venv  ## Local dev install (backend venv + frontend node_modules)
+	$(PS) scripts/dev.ps1 -Stop
+else
+setup:
+	python3.12 -m venv backend/.venv
 	$(PY) -m pip install -e "backend[dev]"
 	cd frontend && npm ci
+	cd backend && $(PY) -m alembic upgrade head && $(PY) -m seed
+up:
+	@echo "Start Postgres 16 and a Redis-compatible server, then in separate terminals:"
+	@echo "  cd backend && $(PY) -m uvicorn app.main:app --reload --port 8000"
+	@echo "  cd backend && $(PY) -m celery -A app.jobs.worker worker --loglevel=info"
+	@echo "  cd frontend && npm run dev"
+down:
+	@echo "Stop the terminals started by 'make up'."
+endif
+
+migrate:
+	cd backend && $(PY) -m alembic upgrade head
+
+seed:          ## Deterministic, idempotent synthetic data
+	cd backend && $(PY) -m alembic upgrade head && $(PY) -m seed
 
 test: test-backend test-frontend
 
-test-backend:  ## Needs Postgres on localhost:5432 (make up, or docker compose up -d db)
+test-backend:  ## Needs PostgreSQL on localhost:5432
 	cd backend && $(PY) -m pytest --cov --cov-report=term-missing:skip-covered
 
 test-frontend:
 	cd frontend && npm test
 
-e2e:           ## Needs the full stack running and seeded
+e2e:           ## Needs the running, seeded stack
 	cd frontend && npm run test:e2e
 
 lint:
