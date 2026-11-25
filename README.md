@@ -6,8 +6,8 @@ only. Not for real patient data.**
 
 | Status | |
 |---|---|
-| Current phase | **2 – Patient billing** ✅ |
-| Next | 3 – Insurance and claims |
+| Current phase | **3 – Insurance and claims** ✅ |
+| Next | 4 – AR / AP and approvals |
 
 See [docs/PHASES.md](docs/PHASES.md) for the per-phase checklist.
 
@@ -117,6 +117,15 @@ The `Makefile` wraps the same commands for macOS/Linux.
   prices, draft invoices with line discounts and tax, issue (posts AR and departmental revenue),
   partial payments, deposits, refunds with approval, void with reversal, PDF invoices and
   receipts. Payment endpoints are idempotent (`Idempotency-Key`).
+
+* **Phase 3 – Claims**: fictional insurers and patient policies, coverage split (copay,
+  deductible, coinsurance, annual limit), claims drafted from invoices, the full claim
+  lifecycle with a deterministic mock insurer, denials and appeals with attachments,
+  remittance CSV import with reconciliation and posting.
+
+Try it (claims): sign in as `insurance`, open **Claims**, submit a draft, choose
+**Run mock insurer** (pick partial approval or denial), appeal a denial, then import a
+remittance CSV under **Remittances** and post it.
 
 Try it: sign in as `billing`, open **Patients**, pick a patient, choose **New invoice**, add
 charges, issue it and record a payment. Sign in as `finance` to approve the pending refund under

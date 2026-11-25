@@ -65,7 +65,14 @@ class Invoice(TimestampMixin, Base):
             name="non_negative_totals",
         ),
         CheckConstraint("total = subtotal - discount_total + tax_total", name="total_formula"),
-        CheckConstraint("amount_paid >= 0 AND amount_paid <= total", name="paid_within_total"),
+        CheckConstraint(
+            "amount_paid >= 0 AND adjusted_amount >= 0 AND amount_paid + adjusted_amount <= total",
+            name="settled_within_total",
+        ),
+        CheckConstraint(
+            "insurance_pending >= 0 AND insurance_pending <= total - amount_paid - adjusted_amount",
+            name="insurance_within_balance",
+        ),
         Index("ix_invoices_status_date", "status", "invoice_date"),
     )
 
@@ -88,6 +95,14 @@ class Invoice(TimestampMixin, Base):
     tax_total: Mapped[Decimal] = mapped_column(Numeric(14, 2), default=Decimal("0"))
     total: Mapped[Decimal] = mapped_column(Numeric(14, 2), default=Decimal("0"))
     amount_paid: Mapped[Decimal] = mapped_column(Numeric(14, 2), default=Decimal("0"))
+    # Written down without cash: contractual adjustments (Phase 3), write-offs (Phase 4).
+    adjusted_amount: Mapped[Decimal] = mapped_column(
+        Numeric(14, 2), default=Decimal("0"), server_default="0"
+    )
+    # Part of the balance currently expected from an insurer (sits in AR - Insurers).
+    insurance_pending: Mapped[Decimal] = mapped_column(
+        Numeric(14, 2), default=Decimal("0"), server_default="0"
+    )
     notes: Mapped[str] = mapped_column(Text, default="", server_default="")
     issue_entry_id: Mapped[int | None] = mapped_column(
         BigInteger, ForeignKey("journal_entries.id", ondelete="RESTRICT")
@@ -113,7 +128,13 @@ class Invoice(TimestampMixin, Base):
 
     @property
     def balance_due(self) -> Decimal:
-        return self.total - self.amount_paid
+        """Everything still owed on the invoice, by patient and insurer together."""
+        return self.total - self.amount_paid - self.adjusted_amount
+
+    @property
+    def patient_due(self) -> Decimal:
+        """What the patient owes now (excludes amounts pending with an insurer)."""
+        return self.balance_due - self.insurance_pending
 
 
 class InvoiceLine(TimestampMixin, Base):

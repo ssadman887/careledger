@@ -5,12 +5,15 @@ from app.api.v1 import (
     audit,
     auth,
     catalog,
+    claims,
     health,
+    insurance,
     invoices,
     journal,
     patients,
     payments,
     periods,
+    remittances,
     reports,
     users,
 )
@@ -28,3 +31,6 @@ api_router.include_router(patients.router)
 api_router.include_router(catalog.router)
 api_router.include_router(invoices.router)
 api_router.include_router(payments.router)
+api_router.include_router(insurance.router)
+api_router.include_router(claims.router)
+api_router.include_router(remittances.router)

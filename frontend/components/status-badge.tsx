@@ -15,7 +15,18 @@ const STYLES: Record<
   paid: { label: "Paid", variant: "default" },
   void: { label: "Void", variant: "destructive" },
   completed: { label: "Completed", variant: "default" },
-  cancelled: { label: "Cancelled", variant: "destructive" },
+  cancelled: { label: "Cancelled", variant: "outline" },
+  submitted: { label: "Submitted", variant: "secondary" },
+  under_review: { label: "Under review", variant: "secondary" },
+  approved: { label: "Approved", variant: "default" },
+  partially_approved: { label: "Partially approved", variant: "secondary" },
+  denied: { label: "Denied", variant: "destructive" },
+  appealed: { label: "Appealed", variant: "secondary" },
+  matched: { label: "Matched", variant: "default" },
+  short_paid: { label: "Short paid", variant: "secondary" },
+  overpaid: { label: "Overpaid", variant: "destructive" },
+  unmatched: { label: "Unmatched", variant: "destructive" },
+  imported: { label: "Imported", variant: "secondary" },
 };
 
 export function StatusBadge({ status }: { status: string }) {

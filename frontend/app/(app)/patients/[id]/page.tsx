@@ -6,6 +6,7 @@ import { useParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 
+import { CoverageCard } from "@/components/billing/coverage-card";
 import { PaymentDialog } from "@/components/billing/money-dialogs";
 import { Money } from "@/components/money";
 import { PageHeader } from "@/components/page-header";
@@ -224,6 +225,9 @@ export default function PatientPage() {
         </Card>
       </div>
 
+      <div className="mb-6">
+        <CoverageCard patientId={patient.id} />
+      </div>
       <div className="grid gap-6 xl:grid-cols-2">
         <Card>
           <CardHeader>

@@ -23,3 +23,15 @@ celery_app.conf.update(
 @celery_app.task(name="careledger.ping")
 def ping() -> str:
     return "pong"
+
+
+@celery_app.task(name="careledger.mock_insurer")
+def run_mock_insurer() -> int:
+    """Adjudicate all submitted/appealed claims (same logic as POST /claims/run-mock-insurer)."""
+    from app.core.db import session_scope
+    from app.services import mock_insurer
+    from app.services.audit import Actor
+
+    actor = Actor(id=None, label=mock_insurer.MOCK_ACTOR_LABEL, roles=frozenset())
+    with session_scope() as session:
+        return len(mock_insurer.run_batch(session, actor))

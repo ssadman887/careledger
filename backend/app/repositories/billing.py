@@ -359,3 +359,12 @@ def get_idempotency_key(
     if lock:
         stmt = stmt.with_for_update()
     return session.scalars(stmt).first()
+
+
+def has_active_claim(session: Session, invoice_id: int) -> bool:
+    from app.models.insurance import ACTIVE_CLAIM_STATUSES, Claim
+
+    stmt = select(func.count(Claim.id)).where(
+        Claim.invoice_id == invoice_id, Claim.status.in_(ACTIVE_CLAIM_STATUSES)
+    )
+    return bool(session.scalar(stmt))

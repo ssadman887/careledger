@@ -205,7 +205,10 @@ class InvoiceSummaryOut(OrmModel):
     due_date: date | None
     total: Money
     amount_paid: Money
+    adjusted_amount: Money
+    insurance_pending: Money
     balance_due: Money
+    patient_due: Money
     created_at: datetime
 
 

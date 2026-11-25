@@ -53,10 +53,25 @@
 - [x] Tests: invoice -> payment -> ledger balanced, partial payments, void reverses, idempotent retry does not double-post, role restrictions, DB guards, deposits, refund approval, price history, rounding
 - [x] Totals: pytest 135 (95% coverage; every service >= 88%), Vitest 18, Playwright 10
 
-## Phase 3: Insurance and claims
+## Phase 3: Insurance and claims ✅
 
-- [ ] Insurers, policies, coverage rules (coverage %, copay, deductible, annual limit)
-- [ ] Claim generation from invoice; lifecycle state machine; denial codes; appeals
-- [ ] Mock insurer adjudication job (configurable rates)
-- [ ] Remittance CSV import and reconciliation; ledger posting
-- [ ] UI: claim worklist and detail with event timeline
+- [x] Migrations `0009_insurance`, `0010_claims` (plus invoice AR fields), `0011_remittances`
+- [x] Insurers (fictional) with mock adjudication rates; policies with coverage %, copay, deductible, annual limit; denial codes
+- [x] Coverage calculation (copay, deductible, coinsurance, limit, already-paid cap) with edge-case and property tests
+- [x] Claim generation from invoices with line allocation; coverage preview endpoint
+- [x] Claim state machine (draft → submitted → under_review → approved / partially_approved / denied → paid; denied → appealed / closed; draft → cancelled) with an append-only event timeline
+- [x] Mock insurer (deterministic, scripted override, batch endpoint, Celery task)
+- [x] Denials with reason codes; appeals with notes and attachments (max 2)
+- [x] Remittance CSV import, reconciliation (matched / short_paid / overpaid / unmatched), idempotent posting; accept short pay
+- [x] Ledger posting: AR transfer on submit, contractual adjustments, insurer payments, denied-and-closed back to patient; AR-Insurers reconciles to invoices
+- [x] UI: insurers, patient coverage, invoice insurance section with preview, claims worklist (status counts, mock insurer), claim detail (timeline, attachments, actions), remittances (import, reconcile, post)
+- [x] Seed: 4 insurers, 34 policies, claims in every state, remittances with matched, short-paid and unmatched lines
+- [x] Totals: pytest 276 (95% coverage; every service >= 88%), Vitest 19, Playwright 12
+
+## Phase 4: AR / AP and approvals
+
+- [ ] AR aging (0-30, 31-60, 61-90, 90+) by patient and insurer; dunning reminder job
+- [ ] Write-offs with approval, posting to bad-debt expense
+- [ ] Generic approval engine (request, approve/reject, comment, thresholds)
+- [ ] Vendors, purchase orders, vendor bills with three-way match, approval, scheduled payment, posting
+- [ ] UI for AR, approvals and payables

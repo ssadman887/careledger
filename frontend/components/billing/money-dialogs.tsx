@@ -81,7 +81,7 @@ export function PaymentDialog({
   useEffect(() => {
     if (open) {
       idem.reset();
-      setAmount(invoice ? invoice.balance_due : "");
+      setAmount(invoice ? invoice.patient_due : "");
       setMethod("cash");
       setReference("");
       setReceivedOn(today());
@@ -125,7 +125,13 @@ export function PaymentDialog({
               "Money received in advance is held as a patient deposit (a liability) until applied."
             ) : (
               <>
-                Balance due: <Money value={invoice.balance_due} />
+                Patient owes: <Money value={invoice.patient_due} />
+                {invoice.insurance_pending !== "0.00" && (
+                  <>
+                    {" "}
+                    (plus <Money value={invoice.insurance_pending} /> pending with the insurer)
+                  </>
+                )}
               </>
             )}
           </DialogDescription>

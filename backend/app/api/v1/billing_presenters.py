@@ -46,7 +46,10 @@ def _summary_fields(i: Invoice) -> dict[str, object]:
         "due_date": i.due_date,
         "total": i.total,
         "amount_paid": i.amount_paid,
+        "adjusted_amount": i.adjusted_amount,
+        "insurance_pending": i.insurance_pending,
         "balance_due": i.balance_due,
+        "patient_due": i.patient_due,
         "created_at": i.created_at,
     }
 

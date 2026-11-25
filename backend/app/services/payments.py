@@ -111,11 +111,14 @@ def record_payment(
         raise Conflict(
             f"Cannot take payment on a {invoice.status} invoice", code="invoice_not_payable"
         )
-    if amount > invoice.balance_due:
+    if amount > invoice.patient_due:
         raise BusinessRuleViolation(
-            f"Payment exceeds the balance due ({invoice.balance_due:.2f})",
+            f"Payment exceeds the patient's balance ({invoice.patient_due:.2f})",
             code="overpayment",
-            details={"balance_due": f"{invoice.balance_due:.2f}"},
+            details={
+                "patient_due": f"{invoice.patient_due:.2f}",
+                "insurance_pending": f"{invoice.insurance_pending:.2f}",
+            },
         )
     before = audit.snapshot(invoice)
     payment = Payment(
@@ -239,9 +242,9 @@ def apply_deposit(
             code="insufficient_deposit",
             details={"deposit_balance": f"{available:.2f}"},
         )
-    if amount > invoice.balance_due:
+    if amount > invoice.patient_due:
         raise BusinessRuleViolation(
-            f"Amount exceeds the balance due ({invoice.balance_due:.2f})", code="overpayment"
+            f"Amount exceeds the patient's balance ({invoice.patient_due:.2f})", code="overpayment"
         )
     before = audit.snapshot(invoice)
     payment = Payment(

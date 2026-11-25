@@ -23,3 +23,12 @@ describe("billing helpers", () => {
     expect(can(["billing_clerk"], "approveRefund")).toBe(false);
   });
 });
+
+describe("claims permissions", () => {
+  it("lets clerks draft but only insurance officers work claims", () => {
+    expect(can(["billing_clerk"], "draftClaim")).toBe(true);
+    expect(can(["billing_clerk"], "workClaims")).toBe(false);
+    expect(can(["insurance_officer"], "workClaims")).toBe(true);
+    expect(can(["finance_manager"], "draftClaim")).toBe(false);
+  });
+});

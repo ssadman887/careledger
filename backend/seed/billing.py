@@ -181,7 +181,7 @@ def seed_billing_activity(session: Session, visits: list[Visit]) -> None:
     for s_list in by_dept.values():
         s_list.sort(key=lambda s: s.code)
 
-    for i, visit in enumerate(visits[:30]):
+    for i, visit in enumerate(visits[:44]):
         dept_code = visit.department.code
         picks = rng.sample(by_dept[dept_code], k=min(len(by_dept[dept_code]), rng.randint(1, 3)))
         lines = [LineSpec(quantity=D(rng.choice([1, 1, 1, 2])), service_id=s.id) for s in picks]

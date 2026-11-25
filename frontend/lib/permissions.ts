@@ -14,6 +14,10 @@ const RULES = {
   voidInvoice: ["billing_clerk", "finance_manager"],
   approveRefund: ["finance_manager"],
   readLedger: ["accountant", "finance_manager", "auditor"],
+  draftClaim: ["billing_clerk", "insurance_officer"],
+  workClaims: ["insurance_officer"],
+  manageInsurers: ["insurance_officer", "admin"],
+  managePolicies: ["insurance_officer", "billing_clerk"],
 } as const satisfies Record<string, readonly RoleName[]>;
 
 export type Permission = keyof typeof RULES;

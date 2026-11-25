@@ -127,8 +127,9 @@ Account codes come from the seeded default hospital chart of accounts (Phase 1).
 | Refund of a deposit (unapplied part only) | 2200 Patient Deposits | 1010 / 1020 |
 | Claim submitted (insurer portion moved) | 1110 AR – Insurers | 1100 AR – Patients |
 | Remittance received | 1020 Bank – Operating (paid) | 1110 AR – Insurers |
-| Remittance short-pay accepted / partial approval | 4900 Contractual Adjustments | 1110 AR – Insurers |
-| Claim denied – balance back to patient | 1100 AR – Patients | 1110 AR – Insurers |
+| Partial approval (shortfall, at adjudication) | 4900 Contractual Adjustments | 1110 AR – Insurers |
+| Short pay accepted (unpaid remainder) | 4900 Contractual Adjustments | 1110 AR – Insurers |
+| Denied claim closed – balance back to patient | 1100 AR – Patients | 1110 AR – Insurers |
 | Write-off (bad debt) | 5400 Bad Debt Expense | 1100 / 1110 |
 | Vendor bill approved | 5xxx expense per bill line | 2010 Accounts Payable |
 | Vendor payment | 2010 Accounts Payable | 1020 Bank – Operating |
@@ -158,6 +159,35 @@ Account codes come from the seeded default hospital chart of accounts (Phase 1).
   `POST /invoices/{id}/apply-deposit` and `POST /payments/{id}/refunds` accept
   `Idempotency-Key`. Same key + same body -> stored response, nothing re-executed; same key +
   different body -> 422 `idempotency_key_reused`; a failed attempt rolls back its key.
+
+### Claims implementation (Phase 3)
+
+* **Coverage** (`services/coverage.py`, pure): copay → deductible (calendar-year, net of claims
+  already filed) → coinsurance (`round(after_deductible x coverage%)`) → annual-limit cap; the
+  excess over the limit is patient responsibility. `insurer + patient == billed` always
+  (property-tested). If the patient already paid part of the invoice, the insurer share is capped
+  at what is still collectible. Claim lines get the insurer share by largest-remainder allocation.
+* **Invoice fields**: `insurance_pending` (sitting in AR-Insurers) and `adjusted_amount`
+  (contractual adjustments, later write-offs). `balance_due = total - paid - adjusted`;
+  `patient_due = balance_due - insurance_pending`. Patients can only pay `patient_due`.
+* **Ledger**: submit moves the insurer share 1100 → 1110; partial approval posts the shortfall as a
+  contractual adjustment (4900 / 1110) at adjudication; remittance payments post 1020 / 1110;
+  accepting a short pay posts the unpaid remainder to 4900; closing a denied claim moves the share
+  back 1110 → 1100. Invariant (tested): balance of 1110 == sum of `invoices.insurance_pending`.
+* **Mock insurer** (`services/mock_insurer.py`): per-insurer approval / partial / denial rates;
+  the outcome is deterministic per (claim number, appeal round); a scripted `outcome` can be passed
+  for demos. Available as `POST /claims/{id}/adjudicate`, `POST /claims/run-mock-insurer` and the
+  Celery task `careledger.mock_insurer`.
+* **Appeals**: denied → appealed (note required, max 2) → under_review again. Attachments
+  (PDF / PNG / JPEG / text, ≤ 5 MB, magic-byte checked) are stored in `claim_attachments` and
+  downloaded with `Content-Disposition: attachment` and `nosniff`.
+* **Remittances** (`services/remittances.py`): CSV `claim_number,paid_amount[,remark]` →
+  reconcile (matched / short_paid / overpaid / unmatched) → post matched and short-paid lines as
+  insurer payments (idempotent; re-validated at post time). Overpaid and unmatched lines are never
+  posted automatically. One remittance per (insurer, payer reference).
+* **DB guards** (migrations 0010/0011): `claim_events` append-only; claims, remittances and their
+  lines never deleted; CHECKs keep `insurer + patient = billed`, `approved <= claimed`,
+  `paid + adjusted <= claimed`, and the invoice balance constraints.
 
 ## 5. Claim state machine
 

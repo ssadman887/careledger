@@ -24,7 +24,8 @@ describe("navForRoles", () => {
   });
 
   it("drops empty sections", () => {
-    const sections = navForRoles(["admin"]).map((s) => s.title);
-    expect(sections).not.toContain("Revenue cycle");
+    expect(navForRoles([])).toEqual([]);
+    const revenue = navForRoles(["admin"]).find((s) => s.title === "Revenue cycle");
+    expect(revenue?.items.map((i) => i.label)).toEqual(["Insurers"]);
   });
 });

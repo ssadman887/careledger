@@ -297,7 +297,11 @@ def void_invoice(session: Session, actor: Actor, invoice_id: int, reason: str) -
         raise ValidationFailed("A void reason is required", code="reason_required")
     if invoice.status == InvoiceStatus.VOID:
         raise Conflict("Invoice is already void", code="already_void")
-    if invoice.amount_paid > 0:
+    if invoice.insurance_pending > 0 or repo.has_active_claim(session, invoice.id):
+        raise BusinessRuleViolation(
+            "Invoice has an open insurance claim; cancel or close it first", code="has_claim"
+        )
+    if invoice.amount_paid > 0 or invoice.adjusted_amount > 0:
         raise BusinessRuleViolation(
             "Invoice has payments; refund them before voiding", code="has_payments"
         )
@@ -327,12 +331,14 @@ def void_invoice(session: Session, actor: Actor, invoice_id: int, reason: str) -
 
 
 def refresh_payment_status(invoice: Invoice) -> None:
-    """Derive issued / partially_paid / paid from amount_paid (void and draft untouched)."""
+    """Derive issued / partially_paid / paid from what has been settled (payments by patient or
+    insurer, plus adjustments). Void and draft invoices are untouched."""
     if invoice.status in (InvoiceStatus.VOID, InvoiceStatus.DRAFT):
         return
-    if invoice.amount_paid <= 0:
-        invoice.status = InvoiceStatus.ISSUED
-    elif invoice.amount_paid < invoice.total:
+    settled = invoice.amount_paid + invoice.adjusted_amount
+    if invoice.balance_due <= 0:
+        invoice.status = InvoiceStatus.PAID
+    elif settled > 0:
         invoice.status = InvoiceStatus.PARTIALLY_PAID
     else:
-        invoice.status = InvoiceStatus.PAID
+        invoice.status = InvoiceStatus.ISSUED

@@ -6,6 +6,7 @@ import { useParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 
+import { InvoiceClaims } from "@/components/billing/invoice-claims";
 import { ApplyDepositDialog, PaymentDialog, RefundDialog } from "@/components/billing/money-dialogs";
 import { Money } from "@/components/money";
 import { PageHeader } from "@/components/page-header";
@@ -140,13 +141,19 @@ export default function InvoicePage() {
         }
       />
 
-      <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
         {(
           [
             ["Status", <StatusBadge key="s" status={invoice.status} />],
             ["Total", <Money key="t" value={invoice.total} />],
-            ["Paid", <Money key="p" value={invoice.amount_paid} />],
-            ["Balance due", <Money key="b" value={invoice.balance_due} className="font-semibold" />],
+            [
+              "Paid / adjusted",
+              <span key="p">
+                <Money value={invoice.amount_paid} /> / <Money value={invoice.adjusted_amount} />
+              </span>,
+            ],
+            ["Pending with insurer", <Money key="i" value={invoice.insurance_pending} />],
+            ["Patient owes", <Money key="b" value={invoice.patient_due} className="font-semibold" />],
           ] as const
         ).map(([label, value]) => (
           <Card key={label}>
@@ -229,6 +236,8 @@ export default function InvoicePage() {
               </dl>
             </CardContent>
           </Card>
+
+          <InvoiceClaims invoice={invoice} />
 
           <Card>
             <CardHeader>
