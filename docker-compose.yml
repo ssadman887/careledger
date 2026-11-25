@@ -1,0 +1,74 @@
+name: careledger
+
+x-backend-env: &backend-env
+  DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-careledger}:${POSTGRES_PASSWORD:-careledger}@db:5432/${POSTGRES_DB:-careledger}
+  REDIS_URL: redis://redis:6379/0
+  JWT_SECRET: ${JWT_SECRET:-dev-only-secret-change-me-please}
+  DEMO_PASSWORD: ${DEMO_PASSWORD:-CareLedger!2026}
+  CORS_ORIGINS: '["http://localhost:3000"]'
+  LOG_JSON: ${LOG_JSON:-false}
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-careledger}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-careledger}
+      POSTGRES_DB: ${POSTGRES_DB:-careledger}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-careledger}"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  api:
+    build: ./backend
+    environment: *backend-env
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v1/health')"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+
+  worker:
+    build: ./backend
+    command: celery -A app.jobs.worker worker --loglevel=info --concurrency=2
+    environment: *backend-env
+    depends_on:
+      api:
+        condition: service_healthy
+
+  web:
+    build:
+      context: ./frontend
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8000}
+    ports:
+      - "3000:3000"
+    depends_on:
+      api:
+        condition: service_healthy
+
+volumes:
+  pgdata:

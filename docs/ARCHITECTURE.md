@@ -1,0 +1,144 @@
+# CareLedger Architecture
+
+CareLedger is a hospital **financial** management system (not clinical). This document is the
+source of truth for layering, ledger posting rules, the claim state machine and the account
+mapping used by auto-posting. Keep it updated as phases land.
+
+## 1. System overview
+
+```mermaid
+flowchart LR
+  subgraph Browser
+    W[Next.js web<br/>App Router + shadcn/ui]
+  end
+  W -- "typed client<br/>(openapi-fetch)" --> A[FastAPI api<br/>/api/v1]
+  A --> P[(PostgreSQL 16)]
+  A -- enqueue --> R[(Redis)]
+  K[Celery worker] -- consume --> R
+  K --> P
+```
+
+| Service  | Purpose                                                              |
+|----------|----------------------------------------------------------------------|
+| `db`     | PostgreSQL 16. Holds all state, plus DB-level accounting safeguards. |
+| `redis`  | Celery broker / result backend.                                      |
+| `api`    | FastAPI app (sync SQLAlchemy 2.0 + psycopg 3), runs migrations on start. |
+| `worker` | Celery worker: invoicing runs, payroll runs, report generation, mock insurer, dunning. |
+| `web`    | Next.js frontend.                                                    |
+
+## 2. Backend layering
+
+```
+routers (app/api/v1)  ->  services (app/services)  ->  repositories (app/repositories)  ->  models (app/models)
+```
+
+* **Routers** are thin: parse request (Pydantic schema), call one service function, return a
+  response schema. They declare authorization with role dependencies. No business rules.
+* **Services** own every business and accounting rule: state machines, validation, ledger
+  posting, approvals, audit records. Services never commit; they `flush()`.
+* **Repositories** hold queries (select/filter/paginate/aggregate). No rules.
+* **Models** are SQLAlchemy 2.0 typed (`Mapped[...]`) declarative classes.
+
+### Unit of work / transactions
+
+One HTTP request = one database transaction. The `get_db` dependency opens a session, yields
+it, **commits once** when the endpoint returns successfully and rolls back on any exception.
+Because services only flush, a business record, its journal entry and its audit-log rows are
+always written atomically (rule 5 and rule 11). Background jobs use the same pattern via
+`session_scope()`.
+
+### Cross-cutting
+
+* **Errors**: every error leaves the API as `{"error": {"code", "message", "details"}}`.
+  Services raise `AppError` subclasses (`NotFound`, `Conflict`, `ValidationFailed`,
+  `PermissionDenied`, `BusinessRuleViolation`). DB safeguard violations raised by triggers are
+  mapped to `409 ledger_violation`.
+* **Auth**: JWT access token (short-lived, 15 min) + refresh token (7 days) stored by `jti` in
+  `refresh_tokens` so logout/rotation can revoke it. Passwords hashed with argon2.
+* **RBAC**: `require_roles(...)` dependency on every endpoint. Read endpoints use
+  `read_roles(...)`, which always also admits `auditor`. The UI hides controls for usability
+  only; the backend is the security boundary.
+* **Audit log**: `audit.record(...)` writes actor, timestamp, entity, action, before/after JSON in
+  the caller's transaction. `audit_log` is append-only (DB trigger rejects UPDATE/DELETE).
+* **Money**: `NUMERIC(14,2)` columns, `Decimal` in Python, serialized as strings in JSON
+  (`app.core.money.Money`). Floats are never used.
+* **Pagination**: list endpoints take `page`, `page_size` (max 200), `sort`, and module filters,
+  and return `{items, total, page, page_size}`.
+* **Idempotency**: payment-creating endpoints accept `Idempotency-Key`; the key, request hash
+  and stored response live in `idempotency_keys` (Phase 2).
+
+## 3. Ledger posting rules
+
+1. Every journal entry has **at least 2 lines**; each line is either a debit or a credit
+   (exactly one side > 0, the other = 0); `sum(debit) == sum(credit)`.
+2. Enforcement is two-layered:
+   * service layer (`ledger.post_entry`) validates before writing;
+   * database: a **deferred constraint trigger** on `journal_lines` checks, at commit, that each
+     touched entry balances and has 2+ lines.
+3. Posted entries are **immutable**: triggers reject UPDATE/DELETE on `journal_lines` and on
+   posted `journal_entries` (except none – status never changes after posting).
+   Corrections = `ledger.reverse_entry(entry_id, reason)`, which posts a mirror entry
+   (debits and credits swapped) linked via `reversal_of_id`.
+4. Posting date must fall in an **open** fiscal period (checked in service and by trigger).
+5. Every posting happens in the same transaction as its source business record
+   (`source_type`, `source_id` on the entry).
+6. Financial records are never hard-deleted (status fields / `deleted_at`).
+
+## 4. Auto-posting account mapping
+
+Account codes come from the seeded default hospital chart of accounts (Phase 1).
+
+| Event | Debit | Credit |
+|-------|-------|--------|
+| Invoice issued | 1100 AR – Patients (invoice total) ; 4910 Patient Discounts (discount) | 41xx Department revenue (gross line amounts, per department) ; 2300 Sales Tax Payable (tax) |
+| Invoice voided | reversing entry of the issue entry | |
+| Patient payment – cash | 1010 Cash on Hand | 1100 AR – Patients |
+| Patient payment – card / bank transfer | 1020 Bank – Operating | 1100 AR – Patients |
+| Patient deposit (unapplied) | 1010 / 1020 | 2200 Patient Deposits |
+| Deposit applied to invoice | 2200 Patient Deposits | 1100 AR – Patients |
+| Refund of a payment | 1100 AR – Patients | 1010 / 1020 |
+| Claim submitted (insurer portion moved) | 1110 AR – Insurers | 1100 AR – Patients |
+| Remittance received | 1020 Bank – Operating (paid) | 1110 AR – Insurers |
+| Remittance short-pay accepted / partial approval | 4900 Contractual Adjustments | 1110 AR – Insurers |
+| Claim denied – balance back to patient | 1100 AR – Patients | 1110 AR – Insurers |
+| Write-off (bad debt) | 5400 Bad Debt Expense | 1100 / 1110 |
+| Vendor bill approved | 5xxx expense per bill line | 2010 Accounts Payable |
+| Vendor payment | 2010 Accounts Payable | 1020 Bank – Operating |
+| Payroll run posted | 5100 Salaries & Wages (gross) | 2110 Payroll Tax Payable ; 2120 Other Deductions Payable ; 2100 Salaries Payable (net) |
+| Payroll paid | 2100 Salaries Payable | 1020 Bank – Operating |
+
+## 5. Claim state machine
+
+```mermaid
+stateDiagram-v2
+  [*] --> draft
+  draft --> submitted
+  draft --> cancelled
+  submitted --> under_review
+  under_review --> approved
+  under_review --> partially_approved
+  under_review --> denied
+  approved --> paid
+  partially_approved --> paid
+  denied --> appealed
+  denied --> closed
+  appealed --> under_review
+  paid --> [*]
+  closed --> [*]
+  cancelled --> [*]
+```
+
+Every transition writes a `claim_events` row and an audit-log row. Invalid transitions raise
+`409 invalid_transition`.
+
+## 6. Invoice lifecycle
+
+`draft -> issued -> partially_paid -> paid`, and `draft|issued -> void` (void only when no
+net payments remain; issued invoices post a reversing entry).
+
+## 7. Frontend
+
+Next.js App Router with route groups per module under `app/(app)/...`, a role-aware sidebar and
+a persistent demo banner. All API types come from `lib/api/schema.d.ts`, generated from
+FastAPI's OpenAPI spec (`make gen-client`); the client is `openapi-fetch`. Business logic stays
+in the backend; components only present data.

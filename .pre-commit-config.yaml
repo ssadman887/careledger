@@ -1,0 +1,35 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files
+      - id: detect-private-key
+  - repo: local
+    hooks:
+      - id: ruff
+        name: ruff (backend venv)
+        entry: bash -c 'cd backend && (.venv/bin/ruff 2>/dev/null || .venv/Scripts/ruff) check --fix . && (.venv/bin/ruff 2>/dev/null || .venv/Scripts/ruff) format .'
+        language: system
+        files: ^backend/.*\.py$
+        pass_filenames: false
+      - id: mypy
+        name: mypy (backend venv)
+        entry: bash -c 'cd backend && (.venv/bin/mypy 2>/dev/null || .venv/Scripts/mypy)'
+        language: system
+        files: ^backend/.*\.py$
+        pass_filenames: false
+      - id: eslint
+        name: eslint
+        entry: bash -c 'cd frontend && npx eslint .'
+        language: system
+        files: ^frontend/.*\.(ts|tsx)$
+        pass_filenames: false
+      - id: prettier
+        name: prettier
+        entry: bash -c 'cd frontend && npx prettier --check .'
+        language: system
+        files: ^frontend/
+        pass_filenames: false
