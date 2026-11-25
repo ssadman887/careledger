@@ -11510,6 +11510,7 @@
           "payables"
         ],
         "summary": "Void Bill",
+        "description": "Void a draft/rejected bill, or (finance managers) an approved unpaid bill via reversal.",
         "operationId": "payables_void_bill",
         "security": [
           {
@@ -18991,6 +18992,17 @@
             ],
             "title": "Approval Entry Id"
           },
+          "void_entry_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Void Entry Id"
+          },
           "lines": {
             "items": {
               "$ref": "#/components/schemas/APLineOut"
@@ -19019,6 +19031,7 @@
           "balance_due",
           "notes",
           "approval_entry_id",
+          "void_entry_id",
           "lines"
         ],
         "title": "VendorBillOut"

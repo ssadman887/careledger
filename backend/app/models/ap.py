@@ -160,6 +160,9 @@ class VendorBill(TimestampMixin, Base):
         BigInteger, ForeignKey("journal_entries.id", ondelete="RESTRICT")
     )
     approved_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    void_entry_id: Mapped[int | None] = mapped_column(
+        BigInteger, ForeignKey("journal_entries.id", ondelete="RESTRICT")
+    )
     created_by_id: Mapped[int | None] = mapped_column(
         BigInteger, ForeignKey("users.id", ondelete="RESTRICT")
     )

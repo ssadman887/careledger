@@ -66,7 +66,7 @@ test("purchase to pay: PO, receipt, matched bill auto-approves, payment", async 
   await login(page, "accountant");
   await page.goto("/payables?tab=purchase-orders");
   await page.getByRole("button", { name: "New purchase order" }).click();
-  await page.getByLabel("Vendor").click();
+  await page.getByLabel("Vendor", { exact: true }).click();
   await page.getByRole("option", { name: "Northgate Medical Supplies" }).click();
   await page.getByLabel("Description, line 1").fill("Suture kits");
   await page.getByLabel("Quantity, line 1").fill("10");
@@ -101,4 +101,31 @@ test("AR aging shows buckets and reminders can be run", async ({ page }) => {
   await page.getByRole("tab", { name: "Reminders" }).click();
   await page.getByRole("button", { name: "Run reminders" }).click();
   await expect(page.getByText(/^(Sent \d+ reminder\(s\)|No new reminders due)$/)).toBeVisible();
+});
+
+test("finance manager voids an approved, unpaid bill with a reversing entry", async ({ page }) => {
+  test.setTimeout(60_000);
+  await login(page, "accountant");
+  await page.goto("/payables?tab=bills");
+  await page.getByRole("button", { name: "New bill" }).click();
+  await page.getByLabel("Vendor", { exact: true }).click();
+  await page.getByRole("option", { name: "Clearview Facility Services" }).click();
+  await page.getByLabel("Vendor invoice number").fill(`CV-E2E-${Date.now()}`);
+  await page.getByLabel("Description, line 1").fill("Window cleaning");
+  await page.getByLabel("Unit price, line 1").fill("180.00");
+  await page.getByRole("button", { name: "Create bill" }).click();
+  await expect(page.getByRole("heading", { name: /^BILL-\d{6}$/ })).toBeVisible();
+  await page.getByRole("button", { name: "Submit for approval" }).click();
+  await expect(badge(page, /^Approved$/)).toBeVisible();
+  await expect(page.getByRole("button", { name: "Void" })).toHaveCount(0); // accountants cannot void posted bills
+  const billUrl = page.url();
+  await logout(page);
+
+  await login(page, "finance");
+  await page.goto(billUrl);
+  await page.getByRole("button", { name: "Void" }).click();
+  await page.getByLabel("Reason").fill("Duplicate of an earlier invoice");
+  await page.getByRole("button", { name: "Void bill" }).click();
+  await expect(badge(page, /^Void$/)).toBeVisible();
+  await expect(page.getByRole("link", { name: "Reversal" })).toBeVisible();
 });

@@ -36,6 +36,8 @@ export default function BillPage() {
   const { id } = useParams<{ id: string }>();
   const { roles } = useAuth();
   const canManage = can(roles, "managePayables");
+  // Voiding an approved (posted) bill reverses ledger entries: finance managers only.
+  const canVoidPosted = roles.includes("finance_manager");
   const idem = useIdempotencyKey();
   const [bill, setBill] = useState<Bill | null>(null);
   const [payments, setPayments] = useState<Schemas["VendorPaymentOut"][]>([]);
@@ -113,33 +115,40 @@ export default function BillPage() {
         title={bill.bill_number}
         description={`${bill.vendor_name} invoice #${bill.vendor_invoice_number} · billed ${bill.bill_date} · due ${bill.due_date}`}
         actions={
-          canManage ? (
-            <>
-              {bill.status === "draft" && <Button onClick={() => void submit()}>Submit for approval</Button>}
-              {payable && (
-                <>
-                  <Button
-                    onClick={() => {
-                      setAmount("");
-                      setReference("");
-                      setDateValue(new Date().toISOString().slice(0, 10));
-                      setDialog("pay");
-                    }}
-                  >
-                    Pay
-                  </Button>
-                  <Button variant="outline" onClick={() => setDialog("schedule")}>
-                    Schedule payment
-                  </Button>
-                </>
-              )}
-              {(bill.status === "draft" || bill.status === "rejected") && (
-                <Button variant="outline" onClick={() => setDialog("void")}>
-                  Void
+          <>
+            {canManage && bill.status === "draft" && (
+              <Button onClick={() => void submit()}>Submit for approval</Button>
+            )}
+            {canManage && payable && (
+              <>
+                <Button
+                  onClick={() => {
+                    setAmount("");
+                    setReference("");
+                    setDateValue(new Date().toISOString().slice(0, 10));
+                    setDialog("pay");
+                  }}
+                >
+                  Pay
                 </Button>
-              )}
-            </>
-          ) : undefined
+                <Button variant="outline" onClick={() => setDialog("schedule")}>
+                  Schedule payment
+                </Button>
+              </>
+            )}
+            {((canManage && (bill.status === "draft" || bill.status === "rejected")) ||
+              (canVoidPosted && bill.status === "approved")) && (
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setReason("");
+                  setDialog("void");
+                }}
+              >
+                Void
+              </Button>
+            )}
+          </>
         }
       />
       <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -231,6 +240,14 @@ export default function BillPage() {
                     <Link className="hover:underline" href={`/journal/${bill.approval_entry_id}`}>
                       Approval entry
                     </Link>
+                    {bill.void_entry_id && (
+                      <>
+                        {" · "}
+                        <Link className="hover:underline" href={`/journal/${bill.void_entry_id}`}>
+                          Reversal
+                        </Link>
+                      </>
+                    )}
                   </dd>
                 </>
               )}
@@ -271,7 +288,9 @@ export default function BillPage() {
                 ? "Posts Dr Accounts Payable / Cr Bank. Leave the amount empty to pay the full balance."
                 : dialog === "schedule"
                   ? "The daily payment run (or “Run scheduled payments”) pays the balance on this date."
-                  : "Only draft or rejected bills can be voided."}
+                  : bill.status === "approved"
+                    ? "Posts the reversal of the approval entry (Dr Accounts Payable / Cr expenses). Bills with payments cannot be voided."
+                    : "The bill is cancelled; nothing has been posted."}
             </DialogDescription>
           </DialogHeader>
           {dialog === "void" ? (

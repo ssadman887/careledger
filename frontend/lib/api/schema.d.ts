@@ -1646,7 +1646,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Void Bill */
+        /**
+         * Void Bill
+         * @description Void a draft/rejected bill, or (finance managers) an approved unpaid bill via reversal.
+         */
         post: operations["payables_void_bill"];
         delete?: never;
         options?: never;
@@ -4341,6 +4344,8 @@ export interface components {
             notes: string;
             /** Approval Entry Id */
             approval_entry_id: number | null;
+            /** Void Entry Id */
+            void_entry_id: number | null;
             /** Lines */
             lines: components["schemas"]["APLineOut"][];
         };

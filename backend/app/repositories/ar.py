@@ -5,25 +5,15 @@ from datetime import date
 from decimal import Decimal
 from typing import Any
 
-from sqlalchemy import ColumnElement, Date, Label, case, cast, func, literal, select
+from sqlalchemy import ColumnElement, func, select, text
 from sqlalchemy.orm import Session
 
 from app.core.pagination import PageParams
 from app.models.ar import DunningNotice, WriteOff
 from app.models.billing import Invoice
-from app.models.insurance import Claim, Insurer
-from app.models.patients import Patient
 from app.repositories.billing import _page
 
 OPEN_INVOICE = ("issued", "partially_paid")
-INSURER_EXPOSED = (
-    "submitted",
-    "under_review",
-    "approved",
-    "partially_approved",
-    "denied",
-    "appealed",
-)
 
 # (label, lower bound in days, upper bound in days or None). Boundaries are inclusive.
 BUCKETS: tuple[tuple[str, int, int | None], ...] = (
@@ -34,52 +24,117 @@ BUCKETS: tuple[tuple[str, int, int | None], ...] = (
 )
 
 
-def _bucket_sums(age: ColumnElement[Any], amount: ColumnElement[Any]) -> list[Label[Any]]:
-    cols: list[Label[Any]] = []
-    for label, low, high in BUCKETS:
-        cond = age >= low if high is None else age.between(low, high)
-        cols.append(func.coalesce(func.sum(case((cond, amount), else_=0)), 0).label(label))
-    return cols
-
-
 def patient_due_expr() -> ColumnElement[Decimal]:
     return Invoice.total - Invoice.amount_paid - Invoice.adjusted_amount - Invoice.insurance_pending
 
 
-def aging_by_patient(session: Session, as_of: date) -> list[tuple[int, str, str, list[Decimal]]]:
-    due = patient_due_expr()
-    age = literal(as_of, Date) - Invoice.invoice_date
-    stmt = (
-        select(
-            Patient.id,
-            Patient.first_name + " " + Patient.last_name,
-            Patient.mrn,
-            *_bucket_sums(age, due),
-        )
-        .join(Patient, Patient.id == Invoice.patient_id)
-        .where(Invoice.status.in_(OPEN_INVOICE), Invoice.invoice_date <= as_of, due > 0)
-        .group_by(Patient.id, Patient.first_name, Patient.last_name, Patient.mrn)
-        .order_by(func.sum(due).desc())
+# ---------------------------------------------------------------- ledger-derived aging
+#
+# Aging is computed from the general ledger, not from current document balances: every posted
+# line on the receivable account dated on/before `as_of` is traced to its invoice (AR-Patients)
+# or claim (AR-Insurers) through the entry's source. Reversals are traced through the entry they
+# reverse. Lines that cannot be traced (e.g. manual journals) land in an "unallocated" row, so the
+# report total always equals the GL balance of the account on `as_of`.
+
+_RESOLVED_LINES = """
+    WITH lines AS (
+        SELECT l.debit - l.credit AS amount, e.source_type, e.source_id, e.reversal_of_id
+        FROM journal_lines l
+        JOIN journal_entries e ON e.id = l.entry_id
+        JOIN accounts a ON a.id = l.account_id
+        WHERE a.code = :account AND e.status = 'posted' AND e.entry_date <= :as_of
+    ), resolved AS (
+        SELECT lines.amount,
+               COALESCE(o.source_type, lines.source_type) AS st,
+               COALESCE(o.source_id, lines.source_id) AS sid
+        FROM lines
+        LEFT JOIN journal_entries o
+               ON lines.source_type = 'reversal' AND o.id = lines.reversal_of_id
     )
-    return [
-        (int(r[0]), r[1], r[2], [Decimal(v) for v in r[3:]]) for r in session.execute(stmt).all()
-    ]
+"""
+
+_PATIENT_SQL = (
+    _RESOLVED_LINES
+    + """
+    , by_invoice AS (
+        SELECT COALESCE(i.id, p.invoice_id, rp.invoice_id, w.invoice_id, c.invoice_id)
+               AS invoice_id,
+               SUM(r.amount) AS balance
+        FROM resolved r
+        LEFT JOIN invoices i    ON r.st = 'invoice'   AND i.id::text = r.sid
+        LEFT JOIN payments p    ON r.st = 'payment'   AND p.id::text = r.sid
+        LEFT JOIN refunds rf    ON r.st = 'refund'    AND rf.id::text = r.sid
+        LEFT JOIN payments rp   ON rp.id = rf.payment_id
+        LEFT JOIN write_offs w  ON r.st = 'write_off' AND w.id::text = r.sid
+        LEFT JOIN claims c      ON r.st = 'claim'     AND c.id::text = r.sid
+        GROUP BY 1
+    )
+    SELECT b.invoice_id, inv.patient_id,
+           pt.first_name || ' ' || pt.last_name AS name, pt.mrn,
+           (:as_of - inv.invoice_date) AS age, b.balance
+    FROM by_invoice b
+    LEFT JOIN invoices inv ON inv.id = b.invoice_id
+    LEFT JOIN patients pt  ON pt.id = inv.patient_id
+    WHERE b.balance <> 0
+"""
+)
+
+_INSURER_SQL = (
+    _RESOLVED_LINES
+    + """
+    , by_claim AS (
+        SELECT c.id AS claim_id, SUM(r.amount) AS balance
+        FROM resolved r
+        LEFT JOIN claims c ON r.st = 'claim' AND c.id::text = r.sid
+        GROUP BY 1
+    )
+    SELECT b.claim_id, c.insurer_id, ins.name, ins.code,
+           (:as_of - COALESCE(te.entry_date, c.service_date)) AS age, b.balance
+    FROM by_claim b
+    LEFT JOIN claims c            ON c.id = b.claim_id
+    LEFT JOIN insurers ins        ON ins.id = c.insurer_id
+    LEFT JOIN journal_entries te  ON te.id = c.transfer_entry_id
+    WHERE b.balance <> 0
+"""
+)
+
+UNALLOCATED = (0, "Unallocated (manual journal entries)", "-")
+
+
+def _group(rows: Sequence[Any]) -> list[tuple[int, str, str, list[Decimal]]]:
+    """Group traced balances by party into the four buckets (python only arranges SQL rows)."""
+    from app.services.ar import bucket_for  # bucket rule lives in the service layer
+
+    labels = [label for label, _, _ in BUCKETS]
+    parties: dict[int, tuple[str, str, dict[str, Decimal]]] = {}
+    for _doc_id, party_id, name, code, age, balance in rows:
+        key = int(party_id) if party_id is not None else UNALLOCATED[0]
+        if key not in parties:
+            label_name, label_code = (name, code) if party_id is not None else UNALLOCATED[1:]
+            parties[key] = (label_name, label_code, dict.fromkeys(labels, Decimal("0.00")))
+        bucket = bucket_for(int(age)) if age is not None else labels[0]
+        parties[key][2][bucket] += Decimal(balance)
+    out = [(pid, n, c, [b[label] for label in labels]) for pid, (n, c, b) in parties.items()]
+    return sorted(out, key=lambda r: (r[0] == 0, -sum(r[3], Decimal("0"))))
+
+
+def aging_by_patient(session: Session, as_of: date) -> list[tuple[int, str, str, list[Decimal]]]:
+    rows = session.execute(text(_PATIENT_SQL), {"account": "1100", "as_of": as_of}).all()
+    return _group(rows)
 
 
 def aging_by_insurer(session: Session, as_of: date) -> list[tuple[int, str, str, list[Decimal]]]:
-    exposure = Claim.insurer_amount - Claim.paid_amount - Claim.adjustment_amount
-    since = func.coalesce(cast(Claim.submitted_at, Date), Claim.service_date)
-    age = literal(as_of, Date) - since
-    stmt = (
-        select(Insurer.id, Insurer.name, Insurer.code, *_bucket_sums(age, exposure))
-        .join(Insurer, Insurer.id == Claim.insurer_id)
-        .where(Claim.status.in_(INSURER_EXPOSED), since <= as_of, exposure > 0)
-        .group_by(Insurer.id, Insurer.name, Insurer.code)
-        .order_by(func.sum(exposure).desc())
+    rows = session.execute(text(_INSURER_SQL), {"account": "1110", "as_of": as_of}).all()
+    return _group(rows)
+
+
+def gl_balance(session: Session, account_code: str, as_of: date) -> Decimal:
+    stmt = text(
+        "SELECT COALESCE(SUM(l.debit - l.credit), 0) FROM journal_lines l "
+        "JOIN journal_entries e ON e.id = l.entry_id JOIN accounts a ON a.id = l.account_id "
+        "WHERE a.code = :code AND e.status = 'posted' AND e.entry_date <= :as_of"
     )
-    return [
-        (int(r[0]), r[1], r[2], [Decimal(v) for v in r[3:]]) for r in session.execute(stmt).all()
-    ]
+    return Decimal(session.scalar(stmt, {"code": account_code, "as_of": as_of}) or 0)
 
 
 def dunning_candidates(session: Session, as_of: date) -> Sequence[Invoice]:

@@ -10,6 +10,7 @@ from sqlalchemy.orm import Session
 
 from app.core.errors import BusinessRuleViolation, Conflict, PermissionDenied, ValidationFailed
 from app.models.approvals import Approval
+from app.models.ar import WriteOff
 from app.models.billing import InvoiceStatus
 from app.models.ledger import EntryStatus
 from app.models.patients import Patient
@@ -759,6 +760,204 @@ def test_vendor_patch_api(client: TestClient, login) -> None:  # type: ignore[no
     assert (
         client.patch(
             f"/api/v1/vendors/{v['id']}", headers=login("finance"), json={"name": "x"}
+        ).status_code
+        == 403
+    )
+
+
+# ------------------------------------------------------------------ as-of (historical) aging
+
+
+def test_aging_is_historical_and_ties_to_gl(db: Session, actor_for, patient, svc, acct) -> None:  # type: ignore[no-untyped-def]
+    from app.repositories import ar as ar_repo
+    from app.services import payments
+
+    clerk = actor_for("billing")
+    inv = issue(db, clerk, patient, svc, date(2026, 8, 1))  # 120.00
+    payments.record_payment(
+        db,
+        clerk,
+        invoice_id=inv.id,
+        method="cash",
+        amount=D("50.00"),
+        received_on=date(2026, 9, 15),
+        reference="",
+        notes="",
+    )
+    ar.request_write_off(db, clerk, invoice_id=inv.id, amount=D("20.00"), reason="Goodwill")
+    wo = db.scalars(select(WriteOff).where(WriteOff.invoice_id == inv.id)).one()
+    ar.approve_write_off(db, actor_for("finance"), wo.id, "ok", on=date(2026, 10, 10))
+    # A manual journal touching AR cannot be traced to an invoice: it is shown as unallocated.
+    ledger.post_entry(
+        db,
+        SYSTEM_ACTOR,
+        ledger.EntryDraft(
+            entry_date=date(2026, 9, 1),
+            memo="Manual AR correction",
+            source_type="manual",
+            lines=[
+                LineInput(acct("1100"), debit=D("7.00")),
+                LineInput(acct("4950"), credit=D("7.00")),
+            ],
+        ),
+    )
+    check_deferred(db)
+
+    def mine(as_of: date):  # type: ignore[no-untyped-def]
+        report = ar.aging(db, by="patient", as_of=as_of)
+        assert report.total == ar_repo.gl_balance(db, "1100", as_of)  # always ties to the GL
+        row = next((r for r in report.rows if r.party_id == patient.id), None)
+        unallocated = next((r for r in report.rows if r.party_id == 0), None)
+        return row, unallocated
+
+    before_payment, unalloc = mine(date(2026, 9, 10))
+    assert before_payment is not None and before_payment.total == D("120.00")
+    assert before_payment.buckets["31-60"] == D("120.00")  # 40 days old
+    assert (
+        unalloc is not None
+        and unalloc.total == D("7.00")
+        and unalloc.name.startswith("Unallocated")
+    )
+    after_payment, _ = mine(date(2026, 9, 20))
+    assert after_payment is not None and after_payment.total == D("70.00")
+    after_write_off, _ = mine(date(2026, 10, 15))
+    assert after_write_off is not None and after_write_off.total == D("50.00")
+    assert after_write_off.buckets["61-90"] == D("50.00")  # 75 days old
+    before_invoice, _ = mine(date(2026, 7, 31))
+    assert before_invoice is None
+
+
+def test_insurer_aging_as_of_dates(db: Session, actor_for, patient, svc) -> None:  # type: ignore[no-untyped-def]
+    from app.models.insurance import Insurer
+    from app.repositories import ar as ar_repo
+    from app.services import claims, insurance, mock_insurer, remittances
+
+    officer = actor_for("insurance")
+    insurer = db.scalars(select(Insurer).where(Insurer.code == "SUN")).one()
+    policy = insurance.create_policy(
+        db,
+        SYSTEM_ACTOR,
+        patient_id=patient.id,
+        insurer_id=insurer.id,
+        policy_number="AGE-1",
+        plan_name="P",
+        coverage_percent=D("100"),
+        copay=D("0"),
+        deductible=D("0"),
+        annual_limit=D("100000"),
+        effective_from=date(2026, 1, 1),
+        effective_to=None,
+    )
+    inv = issue(db, actor_for("billing"), patient, svc, date(2026, 9, 1))
+    claim = claims.create_claim(db, officer, invoice_id=inv.id, policy_id=policy.id)
+    claims.submit_claim(db, officer, claim.id, on=date(2026, 9, 2))
+    mock_insurer.adjudicate(db, officer, claim.id, outcome="approve", on=date(2026, 9, 20))
+    rem = remittances.import_remittance(
+        db,
+        officer,
+        insurer_id=insurer.id,
+        reference="EFT-AGE",
+        payment_date=date(2026, 10, 1),
+        filename="x.csv",
+        csv_text=f"claim_number,paid_amount\n{claim.claim_number},120.00\n",
+    )
+    remittances.post_remittance(db, officer, rem.id)
+    check_deferred(db)
+
+    for as_of, expected in ((date(2026, 9, 15), D("120.00")), (date(2026, 10, 2), None)):
+        report = ar.aging(db, by="insurer", as_of=as_of)
+        assert report.total == ar_repo.gl_balance(db, "1110", as_of)
+        row = next((r for r in report.rows if r.party_id == insurer.id), None)
+        assert (row.total if row else None) == expected
+
+
+# ------------------------------------------------------------------ voiding approved bills
+
+
+def test_void_approved_bill_reverses_and_reopens_po(db: Session, actor_for, vendor, acct) -> None:  # type: ignore[no-untyped-def]
+    accountant, finance = actor_for("accountant"), actor_for("finance")
+    po = received_po(db, accountant, vendor, acct)
+    bill = ap.create_bill(
+        db,
+        accountant,
+        vendor_id=vendor.id,
+        vendor_invoice_number="VOID-1",
+        bill_date=date(2026, 9, 5),
+        due_date=None,
+        purchase_order_id=po.id,
+        lines=None,
+        notes="",
+    )
+    ap.submit_bill(db, accountant, bill.id)
+    ap.schedule_payment(db, accountant, bill.id, date(2026, 10, 1))
+    assert bill.status == "approved" and po.status == "closed"
+    with pytest.raises(PermissionDenied) as exc:
+        ap.void_bill(db, accountant, bill.id, "Wrong vendor")
+    assert exc.value.code == "finance_manager_required"
+    with pytest.raises(ValidationFailed):
+        ap.void_bill(db, finance, bill.id, " ")
+
+    ap.void_bill(db, finance, bill.id, "Invoice issued to the wrong hospital")
+    check_deferred(db)
+    assert bill.status == "void" and bill.scheduled_payment_date is None
+    original, reversal = (
+        entry_lines(db, bill.approval_entry_id),
+        entry_lines(db, bill.void_entry_id),
+    )  # type: ignore[arg-type]
+    assert {k: (c, d) for k, (d, c) in original.items()} == reversal
+    assert po.status == "received"  # can be billed again
+    rebill = ap.create_bill(
+        db,
+        accountant,
+        vendor_id=vendor.id,
+        vendor_invoice_number="VOID-2",
+        bill_date=date(2026, 9, 6),
+        due_date=None,
+        purchase_order_id=po.id,
+        lines=None,
+        notes="",
+    )
+    assert rebill.match_status == "matched"
+    # The voided bill is no longer picked up by the scheduled payment run.
+    paid = ap.run_scheduled_payments(db, accountant, as_of=date(2026, 10, 1))
+    assert all(p.vendor_bill_id != bill.id for p in paid)
+
+
+def test_paid_bill_cannot_be_voided(
+    client: TestClient, login, db: Session, actor_for, vendor, acct
+) -> None:  # type: ignore[no-untyped-def]
+    accountant = actor_for("accountant")
+    bill = ap.create_bill(
+        db,
+        accountant,
+        vendor_id=vendor.id,
+        vendor_invoice_number="PAIDV",
+        bill_date=date(2026, 9, 5),
+        due_date=None,
+        purchase_order_id=None,
+        lines=[APLine("x", acct("5200"), D(1), D("100.00"))],
+        notes="",
+    )
+    ap.submit_bill(db, accountant, bill.id)
+    ap.pay_bill(
+        db,
+        accountant,
+        bill.id,
+        amount=D("10.00"),
+        paid_on=date(2026, 9, 6),
+        method="bank_transfer",
+        reference="",
+    )
+    db.flush()
+    resp = client.post(
+        f"/api/v1/vendor-bills/{bill.id}/void",
+        headers=login("finance"),
+        json={"reason": "duplicate"},
+    )
+    assert resp.status_code == 422 and resp.json()["error"]["code"] == "has_payments"
+    assert (
+        client.post(
+            f"/api/v1/vendor-bills/{bill.id}/void", headers=login("billing"), json={"reason": "x"}
         ).status_code
         == 403
     )

@@ -69,7 +69,7 @@ test("reports render all four statements", async ({ page }) => {
   await expect(page.getByText("Net income")).toBeVisible();
   await page.goto("/accounts");
   await page.getByRole("link", { name: "Bank - Operating" }).click();
-  await expect(page.getByText("Opening balance")).toBeVisible();
+  await expect(page.getByRole("cell", { name: "Opening balance", exact: true }).first()).toBeVisible();
   await expect(page.getByText(/Closing balance \(debit-normal account\)/)).toBeVisible();
 });
 

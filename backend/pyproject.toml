@@ -53,6 +53,8 @@ ignore = ["S101", "B008", "RUF001", "RUF002", "RUF003", "RUF012", "ANN401", "N81
 "tests/**" = ["S", "ANN", "N802", "E501"]
 "seed/**" = ["S311"]
 "alembic/**" = ["ANN"]
+# Ledger-derived aging SQL is built from module constants; all values are bound parameters.
+"app/repositories/ar.py" = ["S608"]
 
 [tool.mypy]
 python_version = "3.12"

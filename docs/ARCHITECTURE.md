@@ -198,10 +198,13 @@ Account codes come from the seeded default hospital chart of accounts (Phase 1).
   `decide()` enforces requester != approver and the approver role, requires a note to reject,
   and dispatches to the kind's handler. Domain endpoints (e.g. journal approve) call
   `record_decision()` so the inbox stays in sync. Comments are kept per request.
-* **AR aging** (`services/ar.py`, SQL `CASE` aggregates): patient balances (`patient_due`) aged
-  from the invoice date; insurer balances (claimed − paid − adjusted on open claims) aged from
-  submission. Buckets 0-30 / 31-60 / 61-90 / 90+ with inclusive bounds; documents dated after
-  `as_of` are excluded. The insurer aging total equals the AR-Insurers balance.
+* **AR aging** (`repositories/ar.py`, `services/ar.py`): computed from the ledger as of a date.
+  Every posted line on 1100 (patients) / 1110 (insurers) dated on or before `as_of` is traced to
+  its invoice or claim through the entry's `source_type` / `source_id` (invoice, payment, refund,
+  write-off, claim; reversals via the entry they reverse) and summed per document, then bucketed
+  0-30 / 31-60 / 61-90 / 90+ (inclusive) by age since invoice date or claim submission.
+  Untraceable lines (manual journals) form an "Unallocated" row, so the report total always
+  equals the GL balance on that date (tested).
 * **Dunning**: daily job (`careledger.dunning_run`) and `POST /ar/dunning/run` create one
   simulated reminder per invoice per level (1-30, 31-60, 61+ days past due).
 * **Write-offs**: patient balance only; Dr 5400 Bad Debt / Cr 1100 on approval, increasing
@@ -210,7 +213,8 @@ Account codes come from the seeded default hospital chart of accounts (Phase 1).
   three-way match (`no_po`, `matched`, `not_received`, `variance` when bills on a PO exceed it),
   approval when unmatched or above the vendor-bill threshold (5,000.00), posting
   Dr expense lines / Cr 2010 on approval, payments Dr 2010 / Cr 1020 (idempotent), scheduled
-  payment runs (`careledger.vendor_payment_run`). The 2010 balance equals open bills (tested).
+  payment runs (`careledger.vendor_payment_run`). Finance managers can void an approved, unpaid
+  bill, which posts the reversal of its approval entry and reopens a closed PO. The 2010 balance equals open bills (tested).
 
 ## 5. Claim state machine
 

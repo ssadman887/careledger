@@ -277,6 +277,7 @@ class VendorBillOut(BaseModel):
     balance_due: Money
     notes: str
     approval_entry_id: int | None
+    void_entry_id: int | None
     lines: list[APLineOut]
 
 

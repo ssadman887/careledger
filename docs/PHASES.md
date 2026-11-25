@@ -72,14 +72,14 @@
 
 - [x] Migrations `0012_approvals`, `0013_ar`, `0014_ap`
 - [x] Generic approval engine (policies with thresholds and approver roles, requests, decisions, comments); manual journals and refunds routed through it
-- [x] AR aging by patient and by insurer (SQL aggregates, inclusive bucket bounds, as-of date)
+- [x] AR aging by patient and by insurer, computed from the ledger as of any date (ties to the GL; unallocated row for manual entries)
 - [x] Dunning reminder job (Celery + endpoint), one notice per invoice per level
 - [x] Write-offs with approval, posting to bad-debt expense
-- [x] Vendors (masked bank details), purchase orders (issue, receive, cancel), vendor bills with three-way match, approval, scheduled payment runs, idempotent payments
+- [x] Vendors (masked bank details), purchase orders (issue, receive, cancel), vendor bills with three-way match, approval, scheduled payment runs, idempotent payments; finance managers can void approved unpaid bills via reversal
 - [x] Ledger: AP approval posts expenses / AP; payments AP / bank; AP and AR-Insurers reconcile to sub-ledgers (tested)
 - [x] UI: approvals inbox (to decide, mine, all, policies) with sidebar badge, AR page (aging charts and tables, reminders, write-offs), invoice write-off action, payables (bills, POs, vendors, payments) with bill and PO detail pages
 - [x] Seed: approval policies, 6 vendors, POs and bills in every state, a pending write-off, a variance bill pending approval, dunning notices
-- [x] Totals: pytest 311 (95% coverage; every service >= 88%), Vitest 22, Playwright 15
+- [x] Totals: pytest 315 (95% coverage; every service >= 88%), Vitest 22, Playwright 16
 
 ## Phase 5: Payroll and budgets
 

@@ -68,8 +68,13 @@ function Aging({ by }: { by: "patient" | "insurer" }) {
         <Card>
           <CardHeader>
             <CardTitle className="text-base">
-              Outstanding by age (days since {by === "patient" ? "invoice" : "claim submission"})
+              Outstanding on {asOf} by age (days since {by === "patient" ? "invoice" : "claim submission"})
             </CardTitle>
+            <p className="text-muted-foreground text-xs">
+              Computed from the ledger as of that date, so totals equal the{" "}
+              {by === "patient" ? "AR-Patients" : "AR-Insurers"} balance. Manual journal entries that cannot
+              be traced to a document appear as unallocated.
+            </p>
           </CardHeader>
           <CardContent className="h-56">
             <ResponsiveContainer width="100%" height="100%">
@@ -113,7 +118,7 @@ function Aging({ by }: { by: "patient" | "insurer" }) {
             {report?.rows.map((r) => (
               <TableRow key={r.party_id}>
                 <TableCell>
-                  {by === "patient" ? (
+                  {by === "patient" && r.party_id !== 0 ? (
                     <Link href={`/patients/${r.party_id}`} className="hover:underline">
                       {r.name}
                     </Link>

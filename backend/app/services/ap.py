@@ -36,6 +36,7 @@ from app.models.ap import (
     VendorBillLine,
     VendorPayment,
 )
+from app.models.identity import RoleName
 from app.models.ledger import AccountType
 from app.repositories import ap as repo
 from app.repositories import billing as billing_repo
@@ -510,11 +511,38 @@ def reject_bill(session: Session, actor: Actor, bill_id: int, note: str) -> Vend
 
 
 def void_bill(session: Session, actor: Actor, bill_id: int, reason: str) -> VendorBill:
+    """Void a bill. Draft and rejected bills just change status. An approved bill with no
+    payments is voided by posting the reversal of its approval entry (Dr AP / Cr expenses);
+    because that changes posted figures, only a finance manager may do it. Bills with payments
+    cannot be voided (the vendor must issue a credit note)."""
+    if not reason.strip():
+        raise ValidationFailed("A void reason is required", code="reason_required")
     bill = get_bill(session, bill_id, lock=True)
-    if bill.status not in (BillStatus.DRAFT, BillStatus.REJECTED):
-        raise Conflict("Only draft or rejected bills can be voided", code="invalid_transition")
     before = audit.snapshot(bill)
+    if bill.status == BillStatus.APPROVED:
+        if RoleName.FINANCE_MANAGER.value not in actor.roles:
+            raise PermissionDenied(
+                "Only a finance manager can void an approved bill", code="finance_manager_required"
+            )
+        # An approved bill has no payments (paying moves it to partially_paid / paid).
+        assert bill.approval_entry_id is not None
+        reversal = ledger.reverse_entry(
+            session, actor, bill.approval_entry_id, f"Void bill {bill.bill_number}: {reason}"
+        )
+        bill.void_entry_id = reversal.id
+        if bill.purchase_order_id is not None:
+            po = get_po(session, bill.purchase_order_id, lock=True)
+            if po.status == POStatus.CLOSED:
+                po.status = POStatus.RECEIVED  # the PO can be billed again
+    elif bill.status in (BillStatus.PARTIALLY_PAID, BillStatus.PAID):
+        raise BusinessRuleViolation(
+            "Bills with payments cannot be voided; record a vendor credit instead",
+            code="has_payments",
+        )
+    elif bill.status not in (BillStatus.DRAFT, BillStatus.REJECTED):
+        raise Conflict(f"A {bill.status} bill cannot be voided", code="invalid_transition")
     bill.status = BillStatus.VOID
+    bill.scheduled_payment_date = None
     bill.notes = f"{bill.notes}\nVoided: {reason}".strip()
     session.flush()
     audit.record(

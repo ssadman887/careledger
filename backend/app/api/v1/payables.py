@@ -46,6 +46,7 @@ router = APIRouter(
 R = RoleName
 APRead = Annotated[Actor, Depends(read_roles(R.ACCOUNTANT, R.FINANCE_MANAGER))]
 APWrite = Annotated[Actor, Depends(require_roles(R.ACCOUNTANT))]
+APVoid = Annotated[Actor, Depends(require_roles(R.ACCOUNTANT, R.FINANCE_MANAGER))]
 IdemKey = Annotated[str | None, Header(alias="Idempotency-Key")]
 BANK_ROLES = frozenset({R.ACCOUNTANT.value, R.FINANCE_MANAGER.value})
 
@@ -109,6 +110,7 @@ def bill_out(b: VendorBill) -> VendorBillOut:
         balance_due=b.balance_due,
         notes=b.notes,
         approval_entry_id=b.approval_entry_id,
+        void_entry_id=b.void_entry_id,
         lines=[APLineOut.model_validate(ln) for ln in b.lines],
     )
 
@@ -293,7 +295,8 @@ def submit_bill(bill_id: int, actor: APWrite, db: DbSession) -> VendorBillOut:
 
 
 @router.post("/vendor-bills/{bill_id}/void", response_model=VendorBillOut)
-def void_bill(bill_id: int, body: ReasonIn, actor: APWrite, db: DbSession) -> VendorBillOut:
+def void_bill(bill_id: int, body: ReasonIn, actor: APVoid, db: DbSession) -> VendorBillOut:
+    """Void a draft/rejected bill, or (finance managers) an approved unpaid bill via reversal."""
     return bill_out(ap.void_bill(db, actor, bill_id, body.reason))
 
 
