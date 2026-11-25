@@ -14588,7 +14588,7 @@
           "budgets"
         ],
         "summary": "Variance",
-        "description": "Budget vs actual per account (ledger lines with the department dimension).\n`through_month` defaults to the current month for the current year, else 12.",
+        "description": "Budget vs actual per account (ledger lines with the department dimension).\n`through_month` defaults to the last complete month for the current year (the current\nmonth is still being posted), else 12.",
         "operationId": "budgets_variance",
         "security": [
           {

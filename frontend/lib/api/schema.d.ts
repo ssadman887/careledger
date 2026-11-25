@@ -2083,7 +2083,8 @@ export interface paths {
         /**
          * Variance
          * @description Budget vs actual per account (ledger lines with the department dimension).
-         *     `through_month` defaults to the current month for the current year, else 12.
+         *     `through_month` defaults to the last complete month for the current year (the current
+         *     month is still being posted), else 12.
          */
         get: operations["budgets_variance"];
         put?: never;
