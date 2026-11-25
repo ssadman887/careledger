@@ -12050,6 +12050,2643 @@
           }
         }
       }
+    },
+    "/api/v1/payroll/employees": {
+      "get": {
+        "tags": [
+          "payroll"
+        ],
+        "summary": "List Employees",
+        "operationId": "payroll_list_employees",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 100
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Search"
+            }
+          },
+          {
+            "name": "department_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Department Id"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/EmployeeStatus"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Status"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1,
+              "title": "Page"
+            }
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 200,
+              "minimum": 1,
+              "default": 25,
+              "title": "Page Size"
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Field name, prefix with '-' for descending",
+              "title": "Sort"
+            },
+            "description": "Field name, prefix with '-' for descending"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Page_EmployeeOut_"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "payroll"
+        ],
+        "summary": "Create Employee",
+        "operationId": "payroll_create_employee",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EmployeeCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmployeeOut"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          }
+        }
+      }
+    },
+    "/api/v1/payroll/employees/{employee_id}": {
+      "get": {
+        "tags": [
+          "payroll"
+        ],
+        "summary": "Get Employee",
+        "operationId": "payroll_get_employee",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "employee_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Employee Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmployeeOut"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "payroll"
+        ],
+        "summary": "Update Employee",
+        "operationId": "payroll_update_employee",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "employee_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Employee Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EmployeeUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmployeeOut"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          }
+        }
+      }
+    },
+    "/api/v1/payroll/employees/{employee_id}/terminate": {
+      "post": {
+        "tags": [
+          "payroll"
+        ],
+        "summary": "Terminate Employee",
+        "operationId": "payroll_terminate_employee",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "employee_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Employee Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TerminateIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmployeeOut"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          }
+        }
+      }
+    },
+    "/api/v1/payroll/employees/{employee_id}/payslips": {
+      "get": {
+        "tags": [
+          "payroll"
+        ],
+        "summary": "Employee Payslips",
+        "operationId": "payroll_employee_payslips",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "employee_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Employee Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PayslipOut"
+                  },
+                  "title": "Response Payroll Employee Payslips"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          }
+        }
+      }
+    },
+    "/api/v1/payroll/tax-slabs/{year}": {
+      "get": {
+        "tags": [
+          "payroll"
+        ],
+        "summary": "Get Tax Slabs",
+        "operationId": "payroll_get_tax_slabs",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "year",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Year"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaxTableOut"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "payroll"
+        ],
+        "summary": "Put Tax Slabs",
+        "operationId": "payroll_put_tax_slabs",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "year",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Year"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaxTableIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaxTableOut"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          }
+        }
+      }
+    },
+    "/api/v1/payroll/tax-preview": {
+      "post": {
+        "tags": [
+          "payroll"
+        ],
+        "summary": "Tax Preview",
+        "description": "What income tax would a given monthly taxable pay attract? (Explains the slabs.)",
+        "operationId": "payroll_tax_preview",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaxPreviewIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaxPreviewOut"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/payroll/runs": {
+      "get": {
+        "tags": [
+          "payroll"
+        ],
+        "summary": "List Runs",
+        "operationId": "payroll_list_runs",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/PayrollStatus"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Status"
+            }
+          },
+          {
+            "name": "year",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Year"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1,
+              "title": "Page"
+            }
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 200,
+              "minimum": 1,
+              "default": 25,
+              "title": "Page Size"
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Field name, prefix with '-' for descending",
+              "title": "Sort"
+            },
+            "description": "Field name, prefix with '-' for descending"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Page_PayrollRunOut_"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "payroll"
+        ],
+        "summary": "Create Run",
+        "description": "Create the month's run. With `background` (default) the calculation is queued on the\njob worker after this request commits; poll GET /payroll/runs/{id} until it is calculated.",
+        "operationId": "payroll_create_run",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PayrollRunCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PayrollRunDetail"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          }
+        }
+      }
+    },
+    "/api/v1/payroll/runs/{run_id}": {
+      "get": {
+        "tags": [
+          "payroll"
+        ],
+        "summary": "Get Run",
+        "operationId": "payroll_get_run",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "run_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Run Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PayrollRunDetail"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          }
+        }
+      }
+    },
+    "/api/v1/payroll/runs/{run_id}/recalculate": {
+      "post": {
+        "tags": [
+          "payroll"
+        ],
+        "summary": "Recalculate Run",
+        "operationId": "payroll_recalculate_run",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "run_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Run Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PayrollRunDetail"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          }
+        }
+      }
+    },
+    "/api/v1/payroll/runs/{run_id}/submit": {
+      "post": {
+        "tags": [
+          "payroll"
+        ],
+        "summary": "Submit Run",
+        "operationId": "payroll_submit_run",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "run_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Run Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PayrollRunDetail"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          }
+        }
+      }
+    },
+    "/api/v1/payroll/runs/{run_id}/approve": {
+      "post": {
+        "tags": [
+          "payroll"
+        ],
+        "summary": "Approve Run",
+        "operationId": "payroll_approve_run",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "run_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Run Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RunDecisionIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PayrollRunDetail"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          }
+        }
+      }
+    },
+    "/api/v1/payroll/runs/{run_id}/reject": {
+      "post": {
+        "tags": [
+          "payroll"
+        ],
+        "summary": "Reject Run",
+        "operationId": "payroll_reject_run",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "run_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Run Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RunDecisionIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PayrollRunDetail"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          }
+        }
+      }
+    },
+    "/api/v1/payroll/runs/{run_id}/pay": {
+      "post": {
+        "tags": [
+          "payroll"
+        ],
+        "summary": "Pay Run",
+        "description": "Pay net salaries. Send an Idempotency-Key so a retried request cannot pay twice.",
+        "operationId": "payroll_pay_run",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "run_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Run Id"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Idempotency-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PayRunIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PayrollRunDetail"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          }
+        }
+      }
+    },
+    "/api/v1/payroll/payslips/{payslip_id}/pdf": {
+      "get": {
+        "tags": [
+          "payroll"
+        ],
+        "summary": "Payslip Pdf",
+        "operationId": "payroll_payslip_pdf",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "payslip_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Payslip Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "PDF document",
+            "content": {
+              "application/pdf": {}
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          }
+        }
+      }
+    },
+    "/api/v1/budgets": {
+      "get": {
+        "tags": [
+          "budgets"
+        ],
+        "summary": "List Budgets",
+        "operationId": "budgets_list_budgets",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "year",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Year"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/BudgetStatus"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Status"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1,
+              "title": "Page"
+            }
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 200,
+              "minimum": 1,
+              "default": 25,
+              "title": "Page Size"
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Field name, prefix with '-' for descending",
+              "title": "Sort"
+            },
+            "description": "Field name, prefix with '-' for descending"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Page_BudgetOut_"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "budgets"
+        ],
+        "summary": "Create Budget",
+        "operationId": "budgets_create_budget",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BudgetCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BudgetOut"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          }
+        }
+      }
+    },
+    "/api/v1/budgets/alerts": {
+      "get": {
+        "tags": [
+          "budgets"
+        ],
+        "summary": "List Alerts",
+        "operationId": "budgets_list_alerts",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "budget_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Budget Id"
+            }
+          },
+          {
+            "name": "year",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Year"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1,
+              "title": "Page"
+            }
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 200,
+              "minimum": 1,
+              "default": 25,
+              "title": "Page Size"
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Field name, prefix with '-' for descending",
+              "title": "Sort"
+            },
+            "description": "Field name, prefix with '-' for descending"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Page_BudgetAlertOut_"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          }
+        }
+      }
+    },
+    "/api/v1/budgets/alerts/check": {
+      "post": {
+        "tags": [
+          "budgets"
+        ],
+        "summary": "Check Alerts",
+        "description": "Run the alert check now (the same job runs daily).",
+        "operationId": "budgets_check_alerts",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BudgetCheckIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BudgetCheckOut"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/budgets/{budget_id}": {
+      "get": {
+        "tags": [
+          "budgets"
+        ],
+        "summary": "Get Budget",
+        "operationId": "budgets_get_budget",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "budget_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Budget Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BudgetOut"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "budgets"
+        ],
+        "summary": "Update Budget",
+        "operationId": "budgets_update_budget",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "budget_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Budget Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BudgetUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BudgetOut"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          }
+        }
+      }
+    },
+    "/api/v1/budgets/{budget_id}/status": {
+      "post": {
+        "tags": [
+          "budgets"
+        ],
+        "summary": "Set Status",
+        "operationId": "budgets_set_status",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "budget_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Budget Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BudgetStatusIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BudgetOut"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          }
+        }
+      }
+    },
+    "/api/v1/budgets/{budget_id}/variance": {
+      "get": {
+        "tags": [
+          "budgets"
+        ],
+        "summary": "Variance",
+        "description": "Budget vs actual per account (ledger lines with the department dimension).\n`through_month` defaults to the current month for the current year, else 12.",
+        "operationId": "budgets_variance",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "budget_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Budget Id"
+            }
+          },
+          {
+            "name": "through_month",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 12,
+                  "minimum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Through Month"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VarianceOut"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -12627,6 +15264,14 @@
         ],
         "title": "AgingRowOut"
       },
+      "AlertLevel": {
+        "type": "string",
+        "enum": [
+          "warning",
+          "exceeded"
+        ],
+        "title": "AlertLevel"
+      },
       "ApplyDepositIn": {
         "properties": {
           "amount": {
@@ -12691,7 +15336,8 @@
           "manual_journal",
           "refund",
           "write_off",
-          "vendor_bill"
+          "vendor_bill",
+          "payroll_run"
         ],
         "title": "ApprovalKind"
       },
@@ -13223,6 +15869,398 @@
           "file"
         ],
         "title": "Body_remittances_import_remittance"
+      },
+      "BudgetAlertOut": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "budget_id": {
+            "type": "integer",
+            "title": "Budget Id"
+          },
+          "budget_name": {
+            "type": "string",
+            "title": "Budget Name"
+          },
+          "department_name": {
+            "type": "string",
+            "title": "Department Name"
+          },
+          "account_id": {
+            "type": "integer",
+            "title": "Account Id"
+          },
+          "account_code": {
+            "type": "string",
+            "title": "Account Code"
+          },
+          "account_name": {
+            "type": "string",
+            "title": "Account Name"
+          },
+          "month": {
+            "type": "integer",
+            "title": "Month"
+          },
+          "level": {
+            "$ref": "#/components/schemas/AlertLevel"
+          },
+          "budget_ytd": {
+            "type": "string",
+            "pattern": "^-?\\d{1,12}(\\.\\d{1,2})?$",
+            "title": "Budget Ytd",
+            "examples": [
+              "1250.00"
+            ]
+          },
+          "actual_ytd": {
+            "type": "string",
+            "pattern": "^-?\\d{1,12}(\\.\\d{1,2})?$",
+            "title": "Actual Ytd",
+            "examples": [
+              "1250.00"
+            ]
+          },
+          "percent_used": {
+            "type": "string",
+            "title": "Percent Used"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "budget_id",
+          "budget_name",
+          "department_name",
+          "account_id",
+          "account_code",
+          "account_name",
+          "month",
+          "level",
+          "budget_ytd",
+          "actual_ytd",
+          "percent_used",
+          "message",
+          "created_at"
+        ],
+        "title": "BudgetAlertOut"
+      },
+      "BudgetCheckIn": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "As Of"
+          }
+        },
+        "type": "object",
+        "title": "BudgetCheckIn"
+      },
+      "BudgetCheckOut": {
+        "properties": {
+          "created": {
+            "type": "integer",
+            "title": "Created"
+          },
+          "alerts": {
+            "items": {
+              "$ref": "#/components/schemas/BudgetAlertOut"
+            },
+            "type": "array",
+            "title": "Alerts"
+          }
+        },
+        "type": "object",
+        "required": [
+          "created",
+          "alerts"
+        ],
+        "title": "BudgetCheckOut"
+      },
+      "BudgetCreate": {
+        "properties": {
+          "year": {
+            "type": "integer",
+            "maximum": 2100.0,
+            "minimum": 2000.0,
+            "title": "Year"
+          },
+          "department_id": {
+            "type": "integer",
+            "title": "Department Id"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 160,
+            "title": "Name",
+            "default": ""
+          },
+          "alert_threshold_percent": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Alert Threshold Percent",
+            "default": "90",
+            "decimal_places": 2,
+            "gt": 0,
+            "le": 100,
+            "max_digits": 5
+          },
+          "notes": {
+            "type": "string",
+            "maxLength": 2000,
+            "title": "Notes",
+            "default": ""
+          },
+          "lines": {
+            "items": {
+              "$ref": "#/components/schemas/BudgetLineIn"
+            },
+            "type": "array",
+            "maxItems": 100,
+            "minItems": 1,
+            "title": "Lines"
+          }
+        },
+        "type": "object",
+        "required": [
+          "year",
+          "department_id",
+          "lines"
+        ],
+        "title": "BudgetCreate"
+      },
+      "BudgetLineIn": {
+        "properties": {
+          "account_id": {
+            "type": "integer",
+            "title": "Account Id"
+          },
+          "annual": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^-?\\d{1,12}(\\.\\d{1,2})?$",
+                "examples": [
+                  "1250.00"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Annual"
+          },
+          "monthly": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string",
+                  "pattern": "^-?\\d{1,12}(\\.\\d{1,2})?$",
+                  "examples": [
+                    "1250.00"
+                  ]
+                },
+                "type": "array",
+                "maxItems": 12,
+                "minItems": 12
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Monthly"
+          }
+        },
+        "type": "object",
+        "required": [
+          "account_id"
+        ],
+        "title": "BudgetLineIn"
+      },
+      "BudgetOut": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "year": {
+            "type": "integer",
+            "title": "Year"
+          },
+          "department_id": {
+            "type": "integer",
+            "title": "Department Id"
+          },
+          "department_name": {
+            "type": "string",
+            "title": "Department Name"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "status": {
+            "$ref": "#/components/schemas/BudgetStatus"
+          },
+          "alert_threshold_percent": {
+            "type": "string",
+            "title": "Alert Threshold Percent"
+          },
+          "notes": {
+            "type": "string",
+            "title": "Notes"
+          },
+          "annual_total": {
+            "type": "string",
+            "pattern": "^-?\\d{1,12}(\\.\\d{1,2})?$",
+            "title": "Annual Total",
+            "examples": [
+              "1250.00"
+            ]
+          },
+          "accounts": {
+            "type": "integer",
+            "title": "Accounts"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "year",
+          "department_id",
+          "department_name",
+          "name",
+          "status",
+          "alert_threshold_percent",
+          "notes",
+          "annual_total",
+          "accounts",
+          "created_at"
+        ],
+        "title": "BudgetOut"
+      },
+      "BudgetStatus": {
+        "type": "string",
+        "enum": [
+          "draft",
+          "active",
+          "archived"
+        ],
+        "title": "BudgetStatus"
+      },
+      "BudgetStatusIn": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "archived"
+            ],
+            "title": "Status"
+          }
+        },
+        "type": "object",
+        "required": [
+          "status"
+        ],
+        "title": "BudgetStatusIn"
+      },
+      "BudgetUpdate": {
+        "properties": {
+          "name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 160
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "alert_threshold_percent": {
+            "anyOf": [
+              {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "string"
+                  }
+                ],
+                "decimal_places": 2,
+                "gt": 0,
+                "le": 100,
+                "max_digits": 5
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Alert Threshold Percent"
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 2000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes"
+          },
+          "lines": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/BudgetLineIn"
+                },
+                "type": "array",
+                "maxItems": 100,
+                "minItems": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lines"
+          }
+        },
+        "type": "object",
+        "title": "BudgetUpdate"
       },
       "ClaimAttachmentOut": {
         "properties": {
@@ -14222,6 +17260,47 @@
         ],
         "title": "DepartmentOut"
       },
+      "DepartmentTotalOut": {
+        "properties": {
+          "department_id": {
+            "type": "integer",
+            "title": "Department Id"
+          },
+          "department_name": {
+            "type": "string",
+            "title": "Department Name"
+          },
+          "headcount": {
+            "type": "integer",
+            "title": "Headcount"
+          },
+          "gross": {
+            "type": "string",
+            "pattern": "^-?\\d{1,12}(\\.\\d{1,2})?$",
+            "title": "Gross",
+            "examples": [
+              "1250.00"
+            ]
+          },
+          "net": {
+            "type": "string",
+            "pattern": "^-?\\d{1,12}(\\.\\d{1,2})?$",
+            "title": "Net",
+            "examples": [
+              "1250.00"
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "department_id",
+          "department_name",
+          "headcount",
+          "gross",
+          "net"
+        ],
+        "title": "DepartmentTotalOut"
+      },
       "DunningNoticeOut": {
         "properties": {
           "id": {
@@ -14328,6 +17407,444 @@
           "notices"
         ],
         "title": "DunningRunOut"
+      },
+      "EmployeeCreate": {
+        "properties": {
+          "first_name": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "First Name"
+          },
+          "last_name": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Last Name"
+          },
+          "email": {
+            "type": "string",
+            "maxLength": 255,
+            "title": "Email",
+            "default": ""
+          },
+          "department_id": {
+            "type": "integer",
+            "title": "Department Id"
+          },
+          "position": {
+            "type": "string",
+            "maxLength": 120,
+            "minLength": 1,
+            "title": "Position"
+          },
+          "hire_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Hire Date"
+          },
+          "bank_reference": {
+            "type": "string",
+            "maxLength": 80,
+            "title": "Bank Reference",
+            "default": ""
+          },
+          "basic_salary": {
+            "type": "string",
+            "pattern": "^-?\\d{1,12}(\\.\\d{1,2})?$",
+            "title": "Basic Salary",
+            "examples": [
+              "1250.00"
+            ]
+          },
+          "housing_allowance": {
+            "type": "string",
+            "pattern": "^-?\\d{1,12}(\\.\\d{1,2})?$",
+            "title": "Housing Allowance",
+            "default": "0",
+            "examples": [
+              "1250.00"
+            ]
+          },
+          "transport_allowance": {
+            "type": "string",
+            "pattern": "^-?\\d{1,12}(\\.\\d{1,2})?$",
+            "title": "Transport Allowance",
+            "default": "0",
+            "examples": [
+              "1250.00"
+            ]
+          },
+          "other_allowance": {
+            "type": "string",
+            "pattern": "^-?\\d{1,12}(\\.\\d{1,2})?$",
+            "title": "Other Allowance",
+            "default": "0",
+            "examples": [
+              "1250.00"
+            ]
+          },
+          "pension_rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Pension Rate",
+            "default": "0.05",
+            "decimal_places": 4,
+            "ge": 0,
+            "le": 0.2,
+            "max_digits": 5
+          },
+          "other_deduction": {
+            "type": "string",
+            "pattern": "^-?\\d{1,12}(\\.\\d{1,2})?$",
+            "title": "Other Deduction",
+            "default": "0",
+            "examples": [
+              "1250.00"
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "first_name",
+          "last_name",
+          "department_id",
+          "position",
+          "hire_date",
+          "basic_salary"
+        ],
+        "title": "EmployeeCreate"
+      },
+      "EmployeeOut": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "employee_number": {
+            "type": "string",
+            "title": "Employee Number"
+          },
+          "first_name": {
+            "type": "string",
+            "title": "First Name"
+          },
+          "last_name": {
+            "type": "string",
+            "title": "Last Name"
+          },
+          "full_name": {
+            "type": "string",
+            "title": "Full Name"
+          },
+          "email": {
+            "type": "string",
+            "title": "Email"
+          },
+          "department_id": {
+            "type": "integer",
+            "title": "Department Id"
+          },
+          "department_name": {
+            "type": "string",
+            "title": "Department Name"
+          },
+          "position": {
+            "type": "string",
+            "title": "Position"
+          },
+          "hire_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Hire Date"
+          },
+          "termination_date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Termination Date"
+          },
+          "status": {
+            "$ref": "#/components/schemas/EmployeeStatus"
+          },
+          "bank_reference": {
+            "type": "string",
+            "title": "Bank Reference"
+          },
+          "basic_salary": {
+            "type": "string",
+            "pattern": "^-?\\d{1,12}(\\.\\d{1,2})?$",
+            "title": "Basic Salary",
+            "examples": [
+              "1250.00"
+            ]
+          },
+          "housing_allowance": {
+            "type": "string",
+            "pattern": "^-?\\d{1,12}(\\.\\d{1,2})?$",
+            "title": "Housing Allowance",
+            "examples": [
+              "1250.00"
+            ]
+          },
+          "transport_allowance": {
+            "type": "string",
+            "pattern": "^-?\\d{1,12}(\\.\\d{1,2})?$",
+            "title": "Transport Allowance",
+            "examples": [
+              "1250.00"
+            ]
+          },
+          "other_allowance": {
+            "type": "string",
+            "pattern": "^-?\\d{1,12}(\\.\\d{1,2})?$",
+            "title": "Other Allowance",
+            "examples": [
+              "1250.00"
+            ]
+          },
+          "monthly_gross": {
+            "type": "string",
+            "pattern": "^-?\\d{1,12}(\\.\\d{1,2})?$",
+            "title": "Monthly Gross",
+            "examples": [
+              "1250.00"
+            ]
+          },
+          "pension_rate": {
+            "type": "string",
+            "title": "Pension Rate"
+          },
+          "other_deduction": {
+            "type": "string",
+            "pattern": "^-?\\d{1,12}(\\.\\d{1,2})?$",
+            "title": "Other Deduction",
+            "examples": [
+              "1250.00"
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "employee_number",
+          "first_name",
+          "last_name",
+          "full_name",
+          "email",
+          "department_id",
+          "department_name",
+          "position",
+          "hire_date",
+          "termination_date",
+          "status",
+          "bank_reference",
+          "basic_salary",
+          "housing_allowance",
+          "transport_allowance",
+          "other_allowance",
+          "monthly_gross",
+          "pension_rate",
+          "other_deduction"
+        ],
+        "title": "EmployeeOut"
+      },
+      "EmployeeStatus": {
+        "type": "string",
+        "enum": [
+          "active",
+          "terminated"
+        ],
+        "title": "EmployeeStatus"
+      },
+      "EmployeeUpdate": {
+        "properties": {
+          "first_name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 80,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "First Name"
+          },
+          "last_name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 80,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Name"
+          },
+          "email": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 255
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Email"
+          },
+          "department_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Department Id"
+          },
+          "position": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 120,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Position"
+          },
+          "bank_reference": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 80
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bank Reference"
+          },
+          "basic_salary": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^-?\\d{1,12}(\\.\\d{1,2})?$",
+                "examples": [
+                  "1250.00"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Basic Salary"
+          },
+          "housing_allowance": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^-?\\d{1,12}(\\.\\d{1,2})?$",
+                "examples": [
+                  "1250.00"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Housing Allowance"
+          },
+          "transport_allowance": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^-?\\d{1,12}(\\.\\d{1,2})?$",
+                "examples": [
+                  "1250.00"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Transport Allowance"
+          },
+          "other_allowance": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^-?\\d{1,12}(\\.\\d{1,2})?$",
+                "examples": [
+                  "1250.00"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Other Allowance"
+          },
+          "pension_rate": {
+            "anyOf": [
+              {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "string"
+                  }
+                ],
+                "decimal_places": 4,
+                "ge": 0,
+                "le": 0.2,
+                "max_digits": 5
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pension Rate"
+          },
+          "other_deduction": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^-?\\d{1,12}(\\.\\d{1,2})?$",
+                "examples": [
+                  "1250.00"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Other Deduction"
+          }
+        },
+        "type": "object",
+        "title": "EmployeeUpdate"
       },
       "EntryStatus": {
         "type": "string",
@@ -16121,6 +19638,68 @@
         ],
         "title": "Page[AuditLogOut]"
       },
+      "Page_BudgetAlertOut_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/BudgetAlertOut"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "page": {
+            "type": "integer",
+            "title": "Page"
+          },
+          "page_size": {
+            "type": "integer",
+            "title": "Page Size"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "total",
+          "page",
+          "page_size"
+        ],
+        "title": "Page[BudgetAlertOut]"
+      },
+      "Page_BudgetOut_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/BudgetOut"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "page": {
+            "type": "integer",
+            "title": "Page"
+          },
+          "page_size": {
+            "type": "integer",
+            "title": "Page Size"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "total",
+          "page",
+          "page_size"
+        ],
+        "title": "Page[BudgetOut]"
+      },
       "Page_ClaimSummaryOut_": {
         "properties": {
           "items": {
@@ -16182,6 +19761,37 @@
           "page_size"
         ],
         "title": "Page[DunningNoticeOut]"
+      },
+      "Page_EmployeeOut_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/EmployeeOut"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "page": {
+            "type": "integer",
+            "title": "Page"
+          },
+          "page_size": {
+            "type": "integer",
+            "title": "Page Size"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "total",
+          "page",
+          "page_size"
+        ],
+        "title": "Page[EmployeeOut]"
       },
       "Page_InvoiceSummaryOut_": {
         "properties": {
@@ -16306,6 +19916,37 @@
           "page_size"
         ],
         "title": "Page[PaymentOut]"
+      },
+      "Page_PayrollRunOut_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/PayrollRunOut"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "page": {
+            "type": "integer",
+            "title": "Page"
+          },
+          "page_size": {
+            "type": "integer",
+            "title": "Page Size"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "total",
+          "page",
+          "page_size"
+        ],
+        "title": "Page[PayrollRunOut]"
       },
       "Page_PolicyOut_": {
         "properties": {
@@ -16879,6 +20520,24 @@
         "type": "object",
         "title": "PatientUpdate"
       },
+      "PayRunIn": {
+        "properties": {
+          "paid_on": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Paid On"
+          }
+        },
+        "type": "object",
+        "title": "PayRunIn"
+      },
       "PaymentDetailOut": {
         "properties": {
           "id": {
@@ -17247,6 +20906,642 @@
           "payments"
         ],
         "title": "PaymentRunOut"
+      },
+      "PayrollRunCreate": {
+        "properties": {
+          "year": {
+            "type": "integer",
+            "maximum": 2100.0,
+            "minimum": 2000.0,
+            "title": "Year"
+          },
+          "month": {
+            "type": "integer",
+            "maximum": 12.0,
+            "minimum": 1.0,
+            "title": "Month"
+          },
+          "pay_date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pay Date"
+          },
+          "background": {
+            "type": "boolean",
+            "title": "Background",
+            "description": "Calculate in the background job (poll the run) or inline.",
+            "default": true
+          }
+        },
+        "type": "object",
+        "required": [
+          "year",
+          "month"
+        ],
+        "title": "PayrollRunCreate"
+      },
+      "PayrollRunDetail": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "run_number": {
+            "type": "string",
+            "title": "Run Number"
+          },
+          "year": {
+            "type": "integer",
+            "title": "Year"
+          },
+          "month": {
+            "type": "integer",
+            "title": "Month"
+          },
+          "period_start": {
+            "type": "string",
+            "format": "date",
+            "title": "Period Start"
+          },
+          "period_end": {
+            "type": "string",
+            "format": "date",
+            "title": "Period End"
+          },
+          "pay_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Pay Date"
+          },
+          "status": {
+            "$ref": "#/components/schemas/PayrollStatus"
+          },
+          "employee_count": {
+            "type": "integer",
+            "title": "Employee Count"
+          },
+          "gross_total": {
+            "type": "string",
+            "pattern": "^-?\\d{1,12}(\\.\\d{1,2})?$",
+            "title": "Gross Total",
+            "examples": [
+              "1250.00"
+            ]
+          },
+          "pension_total": {
+            "type": "string",
+            "pattern": "^-?\\d{1,12}(\\.\\d{1,2})?$",
+            "title": "Pension Total",
+            "examples": [
+              "1250.00"
+            ]
+          },
+          "tax_total": {
+            "type": "string",
+            "pattern": "^-?\\d{1,12}(\\.\\d{1,2})?$",
+            "title": "Tax Total",
+            "examples": [
+              "1250.00"
+            ]
+          },
+          "other_deduction_total": {
+            "type": "string",
+            "pattern": "^-?\\d{1,12}(\\.\\d{1,2})?$",
+            "title": "Other Deduction Total",
+            "examples": [
+              "1250.00"
+            ]
+          },
+          "net_total": {
+            "type": "string",
+            "pattern": "^-?\\d{1,12}(\\.\\d{1,2})?$",
+            "title": "Net Total",
+            "examples": [
+              "1250.00"
+            ]
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          },
+          "calculated_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Calculated At"
+          },
+          "posting_entry_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Posting Entry Id"
+          },
+          "funding_entry_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Funding Entry Id"
+          },
+          "payment_entry_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Payment Entry Id"
+          },
+          "approved_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Approved At"
+          },
+          "paid_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Paid At"
+          },
+          "created_by_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created By Id"
+          },
+          "approval_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Approval Id"
+          },
+          "payslips": {
+            "items": {
+              "$ref": "#/components/schemas/PayslipOut"
+            },
+            "type": "array",
+            "title": "Payslips"
+          },
+          "departments": {
+            "items": {
+              "$ref": "#/components/schemas/DepartmentTotalOut"
+            },
+            "type": "array",
+            "title": "Departments"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "run_number",
+          "year",
+          "month",
+          "period_start",
+          "period_end",
+          "pay_date",
+          "status",
+          "employee_count",
+          "gross_total",
+          "pension_total",
+          "tax_total",
+          "other_deduction_total",
+          "net_total",
+          "error",
+          "calculated_at",
+          "posting_entry_id",
+          "funding_entry_id",
+          "payment_entry_id",
+          "approved_at",
+          "paid_at",
+          "created_by_id",
+          "payslips",
+          "departments"
+        ],
+        "title": "PayrollRunDetail"
+      },
+      "PayrollRunOut": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "run_number": {
+            "type": "string",
+            "title": "Run Number"
+          },
+          "year": {
+            "type": "integer",
+            "title": "Year"
+          },
+          "month": {
+            "type": "integer",
+            "title": "Month"
+          },
+          "period_start": {
+            "type": "string",
+            "format": "date",
+            "title": "Period Start"
+          },
+          "period_end": {
+            "type": "string",
+            "format": "date",
+            "title": "Period End"
+          },
+          "pay_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Pay Date"
+          },
+          "status": {
+            "$ref": "#/components/schemas/PayrollStatus"
+          },
+          "employee_count": {
+            "type": "integer",
+            "title": "Employee Count"
+          },
+          "gross_total": {
+            "type": "string",
+            "pattern": "^-?\\d{1,12}(\\.\\d{1,2})?$",
+            "title": "Gross Total",
+            "examples": [
+              "1250.00"
+            ]
+          },
+          "pension_total": {
+            "type": "string",
+            "pattern": "^-?\\d{1,12}(\\.\\d{1,2})?$",
+            "title": "Pension Total",
+            "examples": [
+              "1250.00"
+            ]
+          },
+          "tax_total": {
+            "type": "string",
+            "pattern": "^-?\\d{1,12}(\\.\\d{1,2})?$",
+            "title": "Tax Total",
+            "examples": [
+              "1250.00"
+            ]
+          },
+          "other_deduction_total": {
+            "type": "string",
+            "pattern": "^-?\\d{1,12}(\\.\\d{1,2})?$",
+            "title": "Other Deduction Total",
+            "examples": [
+              "1250.00"
+            ]
+          },
+          "net_total": {
+            "type": "string",
+            "pattern": "^-?\\d{1,12}(\\.\\d{1,2})?$",
+            "title": "Net Total",
+            "examples": [
+              "1250.00"
+            ]
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          },
+          "calculated_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Calculated At"
+          },
+          "posting_entry_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Posting Entry Id"
+          },
+          "funding_entry_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Funding Entry Id"
+          },
+          "payment_entry_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Payment Entry Id"
+          },
+          "approved_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Approved At"
+          },
+          "paid_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Paid At"
+          },
+          "created_by_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created By Id"
+          },
+          "approval_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Approval Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "run_number",
+          "year",
+          "month",
+          "period_start",
+          "period_end",
+          "pay_date",
+          "status",
+          "employee_count",
+          "gross_total",
+          "pension_total",
+          "tax_total",
+          "other_deduction_total",
+          "net_total",
+          "error",
+          "calculated_at",
+          "posting_entry_id",
+          "funding_entry_id",
+          "payment_entry_id",
+          "approved_at",
+          "paid_at",
+          "created_by_id"
+        ],
+        "title": "PayrollRunOut"
+      },
+      "PayrollStatus": {
+        "type": "string",
+        "enum": [
+          "queued",
+          "calculated",
+          "pending_approval",
+          "posted",
+          "paid",
+          "failed"
+        ],
+        "title": "PayrollStatus"
+      },
+      "PayslipOut": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "payroll_run_id": {
+            "type": "integer",
+            "title": "Payroll Run Id"
+          },
+          "employee_id": {
+            "type": "integer",
+            "title": "Employee Id"
+          },
+          "employee_number": {
+            "type": "string",
+            "title": "Employee Number"
+          },
+          "employee_name": {
+            "type": "string",
+            "title": "Employee Name"
+          },
+          "position": {
+            "type": "string",
+            "title": "Position"
+          },
+          "department_id": {
+            "type": "integer",
+            "title": "Department Id"
+          },
+          "department_name": {
+            "type": "string",
+            "title": "Department Name",
+            "default": ""
+          },
+          "days_in_month": {
+            "type": "integer",
+            "title": "Days In Month"
+          },
+          "days_worked": {
+            "type": "integer",
+            "title": "Days Worked"
+          },
+          "basic": {
+            "type": "string",
+            "pattern": "^-?\\d{1,12}(\\.\\d{1,2})?$",
+            "title": "Basic",
+            "examples": [
+              "1250.00"
+            ]
+          },
+          "housing": {
+            "type": "string",
+            "pattern": "^-?\\d{1,12}(\\.\\d{1,2})?$",
+            "title": "Housing",
+            "examples": [
+              "1250.00"
+            ]
+          },
+          "transport": {
+            "type": "string",
+            "pattern": "^-?\\d{1,12}(\\.\\d{1,2})?$",
+            "title": "Transport",
+            "examples": [
+              "1250.00"
+            ]
+          },
+          "other_allowance": {
+            "type": "string",
+            "pattern": "^-?\\d{1,12}(\\.\\d{1,2})?$",
+            "title": "Other Allowance",
+            "examples": [
+              "1250.00"
+            ]
+          },
+          "gross": {
+            "type": "string",
+            "pattern": "^-?\\d{1,12}(\\.\\d{1,2})?$",
+            "title": "Gross",
+            "examples": [
+              "1250.00"
+            ]
+          },
+          "pension": {
+            "type": "string",
+            "pattern": "^-?\\d{1,12}(\\.\\d{1,2})?$",
+            "title": "Pension",
+            "examples": [
+              "1250.00"
+            ]
+          },
+          "taxable": {
+            "type": "string",
+            "pattern": "^-?\\d{1,12}(\\.\\d{1,2})?$",
+            "title": "Taxable",
+            "examples": [
+              "1250.00"
+            ]
+          },
+          "income_tax": {
+            "type": "string",
+            "pattern": "^-?\\d{1,12}(\\.\\d{1,2})?$",
+            "title": "Income Tax",
+            "examples": [
+              "1250.00"
+            ]
+          },
+          "other_deduction": {
+            "type": "string",
+            "pattern": "^-?\\d{1,12}(\\.\\d{1,2})?$",
+            "title": "Other Deduction",
+            "examples": [
+              "1250.00"
+            ]
+          },
+          "net": {
+            "type": "string",
+            "pattern": "^-?\\d{1,12}(\\.\\d{1,2})?$",
+            "title": "Net",
+            "examples": [
+              "1250.00"
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "payroll_run_id",
+          "employee_id",
+          "employee_number",
+          "employee_name",
+          "position",
+          "department_id",
+          "days_in_month",
+          "days_worked",
+          "basic",
+          "housing",
+          "transport",
+          "other_allowance",
+          "gross",
+          "pension",
+          "taxable",
+          "income_tax",
+          "other_deduction",
+          "net"
+        ],
+        "title": "PayslipOut"
       },
       "PendingCountOut": {
         "properties": {
@@ -18282,6 +22577,18 @@
         ],
         "title": "RoleOut"
       },
+      "RunDecisionIn": {
+        "properties": {
+          "note": {
+            "type": "string",
+            "maxLength": 2000,
+            "title": "Note",
+            "default": ""
+          }
+        },
+        "type": "object",
+        "title": "RunDecisionIn"
+      },
       "ScheduleIn": {
         "properties": {
           "pay_on": {
@@ -18506,6 +22813,223 @@
           "total"
         ],
         "title": "StatementSectionOut"
+      },
+      "TaxPreviewIn": {
+        "properties": {
+          "year": {
+            "type": "integer",
+            "title": "Year"
+          },
+          "monthly_taxable": {
+            "type": "string",
+            "pattern": "^-?\\d{1,12}(\\.\\d{1,2})?$",
+            "title": "Monthly Taxable",
+            "examples": [
+              "1250.00"
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "year",
+          "monthly_taxable"
+        ],
+        "title": "TaxPreviewIn"
+      },
+      "TaxPreviewOut": {
+        "properties": {
+          "annual_taxable": {
+            "type": "string",
+            "pattern": "^-?\\d{1,12}(\\.\\d{1,2})?$",
+            "title": "Annual Taxable",
+            "examples": [
+              "1250.00"
+            ]
+          },
+          "annual_tax": {
+            "type": "string",
+            "pattern": "^-?\\d{1,12}(\\.\\d{1,2})?$",
+            "title": "Annual Tax",
+            "examples": [
+              "1250.00"
+            ]
+          },
+          "monthly_tax": {
+            "type": "string",
+            "pattern": "^-?\\d{1,12}(\\.\\d{1,2})?$",
+            "title": "Monthly Tax",
+            "examples": [
+              "1250.00"
+            ]
+          },
+          "effective_rate_percent": {
+            "type": "string",
+            "title": "Effective Rate Percent"
+          }
+        },
+        "type": "object",
+        "required": [
+          "annual_taxable",
+          "annual_tax",
+          "monthly_tax",
+          "effective_rate_percent"
+        ],
+        "title": "TaxPreviewOut"
+      },
+      "TaxSlabIO-Input": {
+        "properties": {
+          "lower_bound": {
+            "type": "string",
+            "pattern": "^-?\\d{1,12}(\\.\\d{1,2})?$",
+            "title": "Lower Bound",
+            "examples": [
+              "1250.00"
+            ]
+          },
+          "upper_bound": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^-?\\d{1,12}(\\.\\d{1,2})?$",
+                "examples": [
+                  "1250.00"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Upper Bound"
+          },
+          "rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Rate",
+            "decimal_places": 4,
+            "ge": 0,
+            "le": 1,
+            "max_digits": 5
+          }
+        },
+        "type": "object",
+        "required": [
+          "lower_bound",
+          "rate"
+        ],
+        "title": "TaxSlabIO"
+      },
+      "TaxSlabIO-Output": {
+        "properties": {
+          "lower_bound": {
+            "type": "string",
+            "pattern": "^-?\\d{1,12}(\\.\\d{1,2})?$",
+            "title": "Lower Bound",
+            "examples": [
+              "1250.00"
+            ]
+          },
+          "upper_bound": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^-?\\d{1,12}(\\.\\d{1,2})?$",
+                "examples": [
+                  "1250.00"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Upper Bound"
+          },
+          "rate": {
+            "type": "string",
+            "title": "Rate",
+            "decimal_places": 4,
+            "ge": 0,
+            "le": 1,
+            "max_digits": 5
+          }
+        },
+        "type": "object",
+        "required": [
+          "lower_bound",
+          "rate"
+        ],
+        "title": "TaxSlabIO"
+      },
+      "TaxTableIn": {
+        "properties": {
+          "slabs": {
+            "items": {
+              "$ref": "#/components/schemas/TaxSlabIO-Input"
+            },
+            "type": "array",
+            "maxItems": 20,
+            "minItems": 1,
+            "title": "Slabs"
+          }
+        },
+        "type": "object",
+        "required": [
+          "slabs"
+        ],
+        "title": "TaxTableIn"
+      },
+      "TaxTableOut": {
+        "properties": {
+          "year": {
+            "type": "integer",
+            "title": "Year"
+          },
+          "slabs": {
+            "items": {
+              "$ref": "#/components/schemas/TaxSlabIO-Output"
+            },
+            "type": "array",
+            "title": "Slabs"
+          },
+          "locked": {
+            "type": "boolean",
+            "title": "Locked"
+          },
+          "years": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "title": "Years"
+          }
+        },
+        "type": "object",
+        "required": [
+          "year",
+          "slabs",
+          "locked",
+          "years"
+        ],
+        "title": "TaxTableOut"
+      },
+      "TerminateIn": {
+        "properties": {
+          "termination_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Termination Date"
+          }
+        },
+        "type": "object",
+        "required": [
+          "termination_date"
+        ],
+        "title": "TerminateIn"
       },
       "TokenPair": {
         "properties": {
@@ -18876,6 +23400,203 @@
           "type"
         ],
         "title": "ValidationError"
+      },
+      "VarianceOut": {
+        "properties": {
+          "budget": {
+            "$ref": "#/components/schemas/BudgetOut"
+          },
+          "through_month": {
+            "type": "integer",
+            "title": "Through Month"
+          },
+          "rows": {
+            "items": {
+              "$ref": "#/components/schemas/VarianceRowOut"
+            },
+            "type": "array",
+            "title": "Rows"
+          },
+          "expense_totals": {
+            "$ref": "#/components/schemas/VarianceTotals"
+          },
+          "revenue_totals": {
+            "$ref": "#/components/schemas/VarianceTotals"
+          }
+        },
+        "type": "object",
+        "required": [
+          "budget",
+          "through_month",
+          "rows",
+          "expense_totals",
+          "revenue_totals"
+        ],
+        "title": "VarianceOut"
+      },
+      "VarianceRowOut": {
+        "properties": {
+          "account_id": {
+            "type": "integer",
+            "title": "Account Id"
+          },
+          "account_code": {
+            "type": "string",
+            "title": "Account Code"
+          },
+          "account_name": {
+            "type": "string",
+            "title": "Account Name"
+          },
+          "account_type": {
+            "type": "string",
+            "enum": [
+              "expense",
+              "revenue"
+            ],
+            "title": "Account Type"
+          },
+          "budgeted": {
+            "type": "boolean",
+            "title": "Budgeted"
+          },
+          "monthly_budget": {
+            "items": {
+              "type": "string",
+              "pattern": "^-?\\d{1,12}(\\.\\d{1,2})?$",
+              "examples": [
+                "1250.00"
+              ]
+            },
+            "type": "array",
+            "title": "Monthly Budget"
+          },
+          "monthly_actual": {
+            "items": {
+              "type": "string",
+              "pattern": "^-?\\d{1,12}(\\.\\d{1,2})?$",
+              "examples": [
+                "1250.00"
+              ]
+            },
+            "type": "array",
+            "title": "Monthly Actual"
+          },
+          "annual_budget": {
+            "type": "string",
+            "pattern": "^-?\\d{1,12}(\\.\\d{1,2})?$",
+            "title": "Annual Budget",
+            "examples": [
+              "1250.00"
+            ]
+          },
+          "budget_ytd": {
+            "type": "string",
+            "pattern": "^-?\\d{1,12}(\\.\\d{1,2})?$",
+            "title": "Budget Ytd",
+            "examples": [
+              "1250.00"
+            ]
+          },
+          "actual_ytd": {
+            "type": "string",
+            "pattern": "^-?\\d{1,12}(\\.\\d{1,2})?$",
+            "title": "Actual Ytd",
+            "examples": [
+              "1250.00"
+            ]
+          },
+          "variance_ytd": {
+            "type": "string",
+            "pattern": "^-?\\d{1,12}(\\.\\d{1,2})?$",
+            "title": "Variance Ytd",
+            "examples": [
+              "1250.00"
+            ]
+          },
+          "percent_used": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Percent Used"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ok",
+              "warning",
+              "exceeded",
+              "unbudgeted"
+            ],
+            "title": "Status"
+          }
+        },
+        "type": "object",
+        "required": [
+          "account_id",
+          "account_code",
+          "account_name",
+          "account_type",
+          "budgeted",
+          "monthly_budget",
+          "monthly_actual",
+          "annual_budget",
+          "budget_ytd",
+          "actual_ytd",
+          "variance_ytd",
+          "percent_used",
+          "status"
+        ],
+        "title": "VarianceRowOut"
+      },
+      "VarianceTotals": {
+        "properties": {
+          "budget_ytd": {
+            "type": "string",
+            "pattern": "^-?\\d{1,12}(\\.\\d{1,2})?$",
+            "title": "Budget Ytd",
+            "examples": [
+              "1250.00"
+            ]
+          },
+          "actual_ytd": {
+            "type": "string",
+            "pattern": "^-?\\d{1,12}(\\.\\d{1,2})?$",
+            "title": "Actual Ytd",
+            "examples": [
+              "1250.00"
+            ]
+          },
+          "variance_ytd": {
+            "type": "string",
+            "pattern": "^-?\\d{1,12}(\\.\\d{1,2})?$",
+            "title": "Variance Ytd",
+            "examples": [
+              "1250.00"
+            ]
+          },
+          "annual_budget": {
+            "type": "string",
+            "pattern": "^-?\\d{1,12}(\\.\\d{1,2})?$",
+            "title": "Annual Budget",
+            "examples": [
+              "1250.00"
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "budget_ytd",
+          "actual_ytd",
+          "variance_ytd",
+          "annual_budget"
+        ],
+        "title": "VarianceTotals"
       },
       "VendorBillOut": {
         "properties": {

@@ -134,7 +134,7 @@ Account codes come from the seeded default hospital chart of accounts (Phase 1).
 | Vendor bill approved | 5xxx expense per bill line | 2010 Accounts Payable |
 | Vendor payment | 2010 Accounts Payable | 1020 Bank – Operating |
 | Payroll run posted | 5100 Salaries & Wages (gross) | 2110 Payroll Tax Payable ; 2120 Other Deductions Payable ; 2100 Salaries Payable (net) |
-| Payroll paid | 2100 Salaries Payable | 1020 Bank – Operating |
+| Payroll paid | 1030 Bank – Payroll (funding), then 2100 Salaries Payable | 1020 Bank – Operating (funding), then 1030 Bank – Payroll |
 
 ### Billing implementation (Phase 2)
 
@@ -215,6 +215,38 @@ Account codes come from the seeded default hospital chart of accounts (Phase 1).
   Dr expense lines / Cr 2010 on approval, payments Dr 2010 / Cr 1020 (idempotent), scheduled
   payment runs (`careledger.vendor_payment_run`). Finance managers can void an approved, unpaid
   bill, which posts the reversal of its approval entry and reopens a closed PO. The 2010 balance equals open bills (tested).
+
+### Payroll and budgets (Phase 5)
+
+* **Payroll arithmetic** (`services/payroll_math.py`, pure functions, unit and property tested):
+  each pay component is prorated by calendar days employed (hire/termination dates inclusive)
+  and rounded half-up; gross = basic + housing + transport + other allowance; pension =
+  round(prorated basic x rate); taxable = gross - pension; income tax = progressive annual slabs
+  applied to taxable x 12, divided by 12 and rounded half-up; the fixed other deduction is
+  capped so net is never negative; net = gross - pension - tax - other. Run totals are the sum
+  of payslips (checked by DB constraints on both tables).
+* **Tax slabs** per year (`tax_slabs`): contiguous bands from 0, only the last open-ended. A
+  year's slabs lock once a run is submitted or posted.
+* **Run lifecycle**: queued -> calculated -> pending_approval -> posted -> paid (failed when the
+  background calculation errors; rejection returns to calculated). `POST /payroll/runs` queues
+  `careledger.payroll_calculate` after the request commits (in-process fallback if the broker
+  is down); a monthly beat job creates the run on the 25th. Approval uses the generic engine
+  (kind `payroll_run`, threshold 0, finance manager, preparer cannot approve); resubmitting a
+  rejected run reopens the same request with the earlier decision kept as a comment.
+* **Posting** on approval, dated the last day of the month: Dr 5100 per department (department
+  dimension) / Cr 2110 tax, Cr 2120 pension + other deductions, Cr 2100 net. Payment
+  (idempotent): Dr 1030 / Cr 1020 funding transfer, then Dr 2100 / Cr 1030 net pay. A DB
+  trigger freezes posted runs and their payslips.
+* **Budgets** (`services/budgets.py`): one per department and year, monthly amounts per expense
+  or revenue account (annual amounts split evenly, remainder in December); draft -> active ->
+  archived, amounts locked once active. Variance uses SQL aggregates of posted journal lines
+  with the department dimension (expense actual = debit - credit, revenue = credit - debit;
+  reversals net out); positive variance is favourable. The UI and API default to the last
+  complete month.
+* **Alerts** (`careledger.budget_check`, daily, or `POST /budgets/alerts/check`): per active
+  budget and expense account, year to date: `exceeded` when actual > budget, otherwise
+  `warning` at the budget's threshold (default 90%). Raised once per budget, account, month and
+  level; the table is append-only.
 
 ## 5. Claim state machine
 

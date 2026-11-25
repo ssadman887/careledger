@@ -6,6 +6,7 @@ from app.api.v1 import (
     ar,
     audit,
     auth,
+    budgets,
     catalog,
     claims,
     health,
@@ -15,6 +16,7 @@ from app.api.v1 import (
     patients,
     payables,
     payments,
+    payroll,
     periods,
     remittances,
     reports,
@@ -40,3 +42,5 @@ api_router.include_router(remittances.router)
 api_router.include_router(approvals.router)
 api_router.include_router(ar.router)
 api_router.include_router(payables.router)
+api_router.include_router(payroll.router)
+api_router.include_router(budgets.router)

@@ -26,6 +26,7 @@ class ApprovalKind(StrEnum):
     REFUND = "refund"
     WRITE_OFF = "write_off"
     VENDOR_BILL = "vendor_bill"
+    PAYROLL_RUN = "payroll_run"
 
 
 class ApprovalStatus(StrEnum):

@@ -558,7 +558,13 @@ def test_approvals_api_inbox_and_policies(
     assert posted["items"][0]["status"] == "posted"
 
     policies = client.get("/api/v1/approvals/policies", headers=login("accountant")).json()
-    assert {p["kind"] for p in policies} == {"manual_journal", "refund", "write_off", "vendor_bill"}
+    assert {p["kind"] for p in policies} == {
+        "manual_journal",
+        "refund",
+        "write_off",
+        "vendor_bill",
+        "payroll_run",
+    }
     assert (
         client.patch(
             "/api/v1/approvals/policies/refund",

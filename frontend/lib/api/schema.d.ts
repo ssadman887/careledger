@@ -1731,6 +1731,369 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/payroll/employees": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Employees */
+        get: operations["payroll_list_employees"];
+        put?: never;
+        /** Create Employee */
+        post: operations["payroll_create_employee"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/payroll/employees/{employee_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Employee */
+        get: operations["payroll_get_employee"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update Employee */
+        patch: operations["payroll_update_employee"];
+        trace?: never;
+    };
+    "/api/v1/payroll/employees/{employee_id}/terminate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Terminate Employee */
+        post: operations["payroll_terminate_employee"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/payroll/employees/{employee_id}/payslips": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Employee Payslips */
+        get: operations["payroll_employee_payslips"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/payroll/tax-slabs/{year}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Tax Slabs */
+        get: operations["payroll_get_tax_slabs"];
+        /** Put Tax Slabs */
+        put: operations["payroll_put_tax_slabs"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/payroll/tax-preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Tax Preview
+         * @description What income tax would a given monthly taxable pay attract? (Explains the slabs.)
+         */
+        post: operations["payroll_tax_preview"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/payroll/runs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Runs */
+        get: operations["payroll_list_runs"];
+        put?: never;
+        /**
+         * Create Run
+         * @description Create the month's run. With `background` (default) the calculation is queued on the
+         *     job worker after this request commits; poll GET /payroll/runs/{id} until it is calculated.
+         */
+        post: operations["payroll_create_run"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/payroll/runs/{run_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Run */
+        get: operations["payroll_get_run"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/payroll/runs/{run_id}/recalculate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Recalculate Run */
+        post: operations["payroll_recalculate_run"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/payroll/runs/{run_id}/submit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Submit Run */
+        post: operations["payroll_submit_run"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/payroll/runs/{run_id}/approve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Approve Run */
+        post: operations["payroll_approve_run"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/payroll/runs/{run_id}/reject": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Reject Run */
+        post: operations["payroll_reject_run"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/payroll/runs/{run_id}/pay": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Pay Run
+         * @description Pay net salaries. Send an Idempotency-Key so a retried request cannot pay twice.
+         */
+        post: operations["payroll_pay_run"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/payroll/payslips/{payslip_id}/pdf": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Payslip Pdf */
+        get: operations["payroll_payslip_pdf"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/budgets": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Budgets */
+        get: operations["budgets_list_budgets"];
+        put?: never;
+        /** Create Budget */
+        post: operations["budgets_create_budget"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/budgets/alerts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Alerts */
+        get: operations["budgets_list_alerts"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/budgets/alerts/check": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Check Alerts
+         * @description Run the alert check now (the same job runs daily).
+         */
+        post: operations["budgets_check_alerts"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/budgets/{budget_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Budget */
+        get: operations["budgets_get_budget"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update Budget */
+        patch: operations["budgets_update_budget"];
+        trace?: never;
+    };
+    "/api/v1/budgets/{budget_id}/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Set Status */
+        post: operations["budgets_set_status"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/budgets/{budget_id}/variance": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Variance
+         * @description Budget vs actual per account (ledger lines with the department dimension).
+         *     `through_month` defaults to the current month for the current year, else 12.
+         */
+        get: operations["budgets_variance"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1942,6 +2305,11 @@ export interface components {
              */
             total: string;
         };
+        /**
+         * AlertLevel
+         * @enum {string}
+         */
+        AlertLevel: "warning" | "exceeded";
         /** ApplyDepositIn */
         ApplyDepositIn: {
             /**
@@ -1970,7 +2338,7 @@ export interface components {
          * ApprovalKind
          * @enum {string}
          */
-        ApprovalKind: "manual_journal" | "refund" | "write_off" | "vendor_bill";
+        ApprovalKind: "manual_journal" | "refund" | "write_off" | "vendor_bill" | "payroll_run";
         /** ApprovalOut */
         ApprovalOut: {
             /** Id */
@@ -2170,6 +2538,144 @@ export interface components {
              * @description Optional EFT total to check
              */
             expected_total?: string | null;
+        };
+        /** BudgetAlertOut */
+        BudgetAlertOut: {
+            /** Id */
+            id: number;
+            /** Budget Id */
+            budget_id: number;
+            /** Budget Name */
+            budget_name: string;
+            /** Department Name */
+            department_name: string;
+            /** Account Id */
+            account_id: number;
+            /** Account Code */
+            account_code: string;
+            /** Account Name */
+            account_name: string;
+            /** Month */
+            month: number;
+            level: components["schemas"]["AlertLevel"];
+            /**
+             * Budget Ytd
+             * @example 1250.00
+             */
+            budget_ytd: string;
+            /**
+             * Actual Ytd
+             * @example 1250.00
+             */
+            actual_ytd: string;
+            /** Percent Used */
+            percent_used: string;
+            /** Message */
+            message: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /** BudgetCheckIn */
+        BudgetCheckIn: {
+            /** As Of */
+            as_of?: string | null;
+        };
+        /** BudgetCheckOut */
+        BudgetCheckOut: {
+            /** Created */
+            created: number;
+            /** Alerts */
+            alerts: components["schemas"]["BudgetAlertOut"][];
+        };
+        /** BudgetCreate */
+        BudgetCreate: {
+            /** Year */
+            year: number;
+            /** Department Id */
+            department_id: number;
+            /**
+             * Name
+             * @default
+             */
+            name?: string;
+            /**
+             * Alert Threshold Percent
+             * @default 90
+             */
+            alert_threshold_percent?: number | string;
+            /**
+             * Notes
+             * @default
+             */
+            notes?: string;
+            /** Lines */
+            lines: components["schemas"]["BudgetLineIn"][];
+        };
+        /** BudgetLineIn */
+        BudgetLineIn: {
+            /** Account Id */
+            account_id: number;
+            /** Annual */
+            annual?: string | null;
+            /** Monthly */
+            monthly?: string[] | null;
+        };
+        /** BudgetOut */
+        BudgetOut: {
+            /** Id */
+            id: number;
+            /** Year */
+            year: number;
+            /** Department Id */
+            department_id: number;
+            /** Department Name */
+            department_name: string;
+            /** Name */
+            name: string;
+            status: components["schemas"]["BudgetStatus"];
+            /** Alert Threshold Percent */
+            alert_threshold_percent: string;
+            /** Notes */
+            notes: string;
+            /**
+             * Annual Total
+             * @example 1250.00
+             */
+            annual_total: string;
+            /** Accounts */
+            accounts: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /**
+         * BudgetStatus
+         * @enum {string}
+         */
+        BudgetStatus: "draft" | "active" | "archived";
+        /** BudgetStatusIn */
+        BudgetStatusIn: {
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "active" | "archived";
+        };
+        /** BudgetUpdate */
+        BudgetUpdate: {
+            /** Name */
+            name?: string | null;
+            /** Alert Threshold Percent */
+            alert_threshold_percent?: (number | string) | null;
+            /** Notes */
+            notes?: string | null;
+            /** Lines */
+            lines?: components["schemas"]["BudgetLineIn"][] | null;
         };
         /** ClaimAttachmentOut */
         ClaimAttachmentOut: {
@@ -2573,6 +3079,25 @@ export interface components {
             /** Revenue Account Id */
             revenue_account_id: number | null;
         };
+        /** DepartmentTotalOut */
+        DepartmentTotalOut: {
+            /** Department Id */
+            department_id: number;
+            /** Department Name */
+            department_name: string;
+            /** Headcount */
+            headcount: number;
+            /**
+             * Gross
+             * @example 1250.00
+             */
+            gross: string;
+            /**
+             * Net
+             * @example 1250.00
+             */
+            net: string;
+        };
         /** DunningNoticeOut */
         DunningNoticeOut: {
             /** Id */
@@ -2615,6 +3140,161 @@ export interface components {
             created: number;
             /** Notices */
             notices: components["schemas"]["DunningNoticeOut"][];
+        };
+        /** EmployeeCreate */
+        EmployeeCreate: {
+            /** First Name */
+            first_name: string;
+            /** Last Name */
+            last_name: string;
+            /**
+             * Email
+             * @default
+             */
+            email?: string;
+            /** Department Id */
+            department_id: number;
+            /** Position */
+            position: string;
+            /**
+             * Hire Date
+             * Format: date
+             */
+            hire_date: string;
+            /**
+             * Bank Reference
+             * @default
+             */
+            bank_reference?: string;
+            /**
+             * Basic Salary
+             * @example 1250.00
+             */
+            basic_salary: string;
+            /**
+             * Housing Allowance
+             * @default 0
+             * @example 1250.00
+             */
+            housing_allowance?: string;
+            /**
+             * Transport Allowance
+             * @default 0
+             * @example 1250.00
+             */
+            transport_allowance?: string;
+            /**
+             * Other Allowance
+             * @default 0
+             * @example 1250.00
+             */
+            other_allowance?: string;
+            /**
+             * Pension Rate
+             * @default 0.05
+             */
+            pension_rate?: number | string;
+            /**
+             * Other Deduction
+             * @default 0
+             * @example 1250.00
+             */
+            other_deduction?: string;
+        };
+        /** EmployeeOut */
+        EmployeeOut: {
+            /** Id */
+            id: number;
+            /** Employee Number */
+            employee_number: string;
+            /** First Name */
+            first_name: string;
+            /** Last Name */
+            last_name: string;
+            /** Full Name */
+            full_name: string;
+            /** Email */
+            email: string;
+            /** Department Id */
+            department_id: number;
+            /** Department Name */
+            department_name: string;
+            /** Position */
+            position: string;
+            /**
+             * Hire Date
+             * Format: date
+             */
+            hire_date: string;
+            /** Termination Date */
+            termination_date: string | null;
+            status: components["schemas"]["EmployeeStatus"];
+            /** Bank Reference */
+            bank_reference: string;
+            /**
+             * Basic Salary
+             * @example 1250.00
+             */
+            basic_salary: string;
+            /**
+             * Housing Allowance
+             * @example 1250.00
+             */
+            housing_allowance: string;
+            /**
+             * Transport Allowance
+             * @example 1250.00
+             */
+            transport_allowance: string;
+            /**
+             * Other Allowance
+             * @example 1250.00
+             */
+            other_allowance: string;
+            /**
+             * Monthly Gross
+             * @example 1250.00
+             */
+            monthly_gross: string;
+            /** Pension Rate */
+            pension_rate: string;
+            /**
+             * Other Deduction
+             * @example 1250.00
+             */
+            other_deduction: string;
+        };
+        /**
+         * EmployeeStatus
+         * @enum {string}
+         */
+        EmployeeStatus: "active" | "terminated";
+        /** EmployeeUpdate */
+        EmployeeUpdate: {
+            /** First Name */
+            first_name?: string | null;
+            /** Last Name */
+            last_name?: string | null;
+            /** Email */
+            email?: string | null;
+            /** Department Id */
+            department_id?: number | null;
+            /** Position */
+            position?: string | null;
+            /** Bank Reference */
+            bank_reference?: string | null;
+            /** Basic Salary */
+            basic_salary?: string | null;
+            /** Housing Allowance */
+            housing_allowance?: string | null;
+            /** Transport Allowance */
+            transport_allowance?: string | null;
+            /** Other Allowance */
+            other_allowance?: string | null;
+            /** Pension Rate */
+            pension_rate?: (number | string) | null;
+            /** Other Deduction */
+            other_deduction?: string | null;
         };
         /**
          * EntryStatus
@@ -3247,6 +3927,28 @@ export interface components {
             /** Page Size */
             page_size: number;
         };
+        /** Page[BudgetAlertOut] */
+        Page_BudgetAlertOut_: {
+            /** Items */
+            items: components["schemas"]["BudgetAlertOut"][];
+            /** Total */
+            total: number;
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+        };
+        /** Page[BudgetOut] */
+        Page_BudgetOut_: {
+            /** Items */
+            items: components["schemas"]["BudgetOut"][];
+            /** Total */
+            total: number;
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+        };
         /** Page[ClaimSummaryOut] */
         Page_ClaimSummaryOut_: {
             /** Items */
@@ -3262,6 +3964,17 @@ export interface components {
         Page_DunningNoticeOut_: {
             /** Items */
             items: components["schemas"]["DunningNoticeOut"][];
+            /** Total */
+            total: number;
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+        };
+        /** Page[EmployeeOut] */
+        Page_EmployeeOut_: {
+            /** Items */
+            items: components["schemas"]["EmployeeOut"][];
             /** Total */
             total: number;
             /** Page */
@@ -3306,6 +4019,17 @@ export interface components {
         Page_PaymentOut_: {
             /** Items */
             items: components["schemas"]["PaymentOut"][];
+            /** Total */
+            total: number;
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+        };
+        /** Page[PayrollRunOut] */
+        Page_PayrollRunOut_: {
+            /** Items */
+            items: components["schemas"]["PayrollRunOut"][];
             /** Total */
             total: number;
             /** Page */
@@ -3535,6 +4259,11 @@ export interface components {
             /** Email */
             email?: string | null;
         };
+        /** PayRunIn */
+        PayRunIn: {
+            /** Paid On */
+            paid_on?: string | null;
+        };
         /** PaymentDetailOut */
         PaymentDetailOut: {
             /** Id */
@@ -3677,6 +4406,250 @@ export interface components {
             paid: number;
             /** Payments */
             payments: components["schemas"]["VendorPaymentOut"][];
+        };
+        /** PayrollRunCreate */
+        PayrollRunCreate: {
+            /** Year */
+            year: number;
+            /** Month */
+            month: number;
+            /** Pay Date */
+            pay_date?: string | null;
+            /**
+             * Background
+             * @description Calculate in the background job (poll the run) or inline.
+             * @default true
+             */
+            background?: boolean;
+        };
+        /** PayrollRunDetail */
+        PayrollRunDetail: {
+            /** Id */
+            id: number;
+            /** Run Number */
+            run_number: string;
+            /** Year */
+            year: number;
+            /** Month */
+            month: number;
+            /**
+             * Period Start
+             * Format: date
+             */
+            period_start: string;
+            /**
+             * Period End
+             * Format: date
+             */
+            period_end: string;
+            /**
+             * Pay Date
+             * Format: date
+             */
+            pay_date: string;
+            status: components["schemas"]["PayrollStatus"];
+            /** Employee Count */
+            employee_count: number;
+            /**
+             * Gross Total
+             * @example 1250.00
+             */
+            gross_total: string;
+            /**
+             * Pension Total
+             * @example 1250.00
+             */
+            pension_total: string;
+            /**
+             * Tax Total
+             * @example 1250.00
+             */
+            tax_total: string;
+            /**
+             * Other Deduction Total
+             * @example 1250.00
+             */
+            other_deduction_total: string;
+            /**
+             * Net Total
+             * @example 1250.00
+             */
+            net_total: string;
+            /** Error */
+            error: string | null;
+            /** Calculated At */
+            calculated_at: string | null;
+            /** Posting Entry Id */
+            posting_entry_id: number | null;
+            /** Funding Entry Id */
+            funding_entry_id: number | null;
+            /** Payment Entry Id */
+            payment_entry_id: number | null;
+            /** Approved At */
+            approved_at: string | null;
+            /** Paid At */
+            paid_at: string | null;
+            /** Created By Id */
+            created_by_id: number | null;
+            /** Approval Id */
+            approval_id?: number | null;
+            /** Payslips */
+            payslips: components["schemas"]["PayslipOut"][];
+            /** Departments */
+            departments: components["schemas"]["DepartmentTotalOut"][];
+        };
+        /** PayrollRunOut */
+        PayrollRunOut: {
+            /** Id */
+            id: number;
+            /** Run Number */
+            run_number: string;
+            /** Year */
+            year: number;
+            /** Month */
+            month: number;
+            /**
+             * Period Start
+             * Format: date
+             */
+            period_start: string;
+            /**
+             * Period End
+             * Format: date
+             */
+            period_end: string;
+            /**
+             * Pay Date
+             * Format: date
+             */
+            pay_date: string;
+            status: components["schemas"]["PayrollStatus"];
+            /** Employee Count */
+            employee_count: number;
+            /**
+             * Gross Total
+             * @example 1250.00
+             */
+            gross_total: string;
+            /**
+             * Pension Total
+             * @example 1250.00
+             */
+            pension_total: string;
+            /**
+             * Tax Total
+             * @example 1250.00
+             */
+            tax_total: string;
+            /**
+             * Other Deduction Total
+             * @example 1250.00
+             */
+            other_deduction_total: string;
+            /**
+             * Net Total
+             * @example 1250.00
+             */
+            net_total: string;
+            /** Error */
+            error: string | null;
+            /** Calculated At */
+            calculated_at: string | null;
+            /** Posting Entry Id */
+            posting_entry_id: number | null;
+            /** Funding Entry Id */
+            funding_entry_id: number | null;
+            /** Payment Entry Id */
+            payment_entry_id: number | null;
+            /** Approved At */
+            approved_at: string | null;
+            /** Paid At */
+            paid_at: string | null;
+            /** Created By Id */
+            created_by_id: number | null;
+            /** Approval Id */
+            approval_id?: number | null;
+        };
+        /**
+         * PayrollStatus
+         * @enum {string}
+         */
+        PayrollStatus: "queued" | "calculated" | "pending_approval" | "posted" | "paid" | "failed";
+        /** PayslipOut */
+        PayslipOut: {
+            /** Id */
+            id: number;
+            /** Payroll Run Id */
+            payroll_run_id: number;
+            /** Employee Id */
+            employee_id: number;
+            /** Employee Number */
+            employee_number: string;
+            /** Employee Name */
+            employee_name: string;
+            /** Position */
+            position: string;
+            /** Department Id */
+            department_id: number;
+            /**
+             * Department Name
+             * @default
+             */
+            department_name?: string;
+            /** Days In Month */
+            days_in_month: number;
+            /** Days Worked */
+            days_worked: number;
+            /**
+             * Basic
+             * @example 1250.00
+             */
+            basic: string;
+            /**
+             * Housing
+             * @example 1250.00
+             */
+            housing: string;
+            /**
+             * Transport
+             * @example 1250.00
+             */
+            transport: string;
+            /**
+             * Other Allowance
+             * @example 1250.00
+             */
+            other_allowance: string;
+            /**
+             * Gross
+             * @example 1250.00
+             */
+            gross: string;
+            /**
+             * Pension
+             * @example 1250.00
+             */
+            pension: string;
+            /**
+             * Taxable
+             * @example 1250.00
+             */
+            taxable: string;
+            /**
+             * Income Tax
+             * @example 1250.00
+             */
+            income_tax: string;
+            /**
+             * Other Deduction
+             * @example 1250.00
+             */
+            other_deduction: string;
+            /**
+             * Net
+             * @example 1250.00
+             */
+            net: string;
         };
         /** PendingCountOut */
         PendingCountOut: {
@@ -4087,6 +5060,14 @@ export interface components {
             /** Description */
             description: string;
         };
+        /** RunDecisionIn */
+        RunDecisionIn: {
+            /**
+             * Note
+             * @default
+             */
+            note?: string;
+        };
         /** ScheduleIn */
         ScheduleIn: {
             /**
@@ -4161,6 +5142,84 @@ export interface components {
              * @example 1250.00
              */
             total: string;
+        };
+        /** TaxPreviewIn */
+        TaxPreviewIn: {
+            /** Year */
+            year: number;
+            /**
+             * Monthly Taxable
+             * @example 1250.00
+             */
+            monthly_taxable: string;
+        };
+        /** TaxPreviewOut */
+        TaxPreviewOut: {
+            /**
+             * Annual Taxable
+             * @example 1250.00
+             */
+            annual_taxable: string;
+            /**
+             * Annual Tax
+             * @example 1250.00
+             */
+            annual_tax: string;
+            /**
+             * Monthly Tax
+             * @example 1250.00
+             */
+            monthly_tax: string;
+            /** Effective Rate Percent */
+            effective_rate_percent: string;
+        };
+        /** TaxSlabIO */
+        "TaxSlabIO-Input": {
+            /**
+             * Lower Bound
+             * @example 1250.00
+             */
+            lower_bound: string;
+            /** Upper Bound */
+            upper_bound?: string | null;
+            /** Rate */
+            rate: number | string;
+        };
+        /** TaxSlabIO */
+        "TaxSlabIO-Output": {
+            /**
+             * Lower Bound
+             * @example 1250.00
+             */
+            lower_bound: string;
+            /** Upper Bound */
+            upper_bound?: string | null;
+            /** Rate */
+            rate: string;
+        };
+        /** TaxTableIn */
+        TaxTableIn: {
+            /** Slabs */
+            slabs: components["schemas"]["TaxSlabIO-Input"][];
+        };
+        /** TaxTableOut */
+        TaxTableOut: {
+            /** Year */
+            year: number;
+            /** Slabs */
+            slabs: components["schemas"]["TaxSlabIO-Output"][];
+            /** Locked */
+            locked: boolean;
+            /** Years */
+            years: number[];
+        };
+        /** TerminateIn */
+        TerminateIn: {
+            /**
+             * Termination Date
+             * Format: date
+             */
+            termination_date: string;
         };
         /** TokenPair */
         TokenPair: {
@@ -4292,6 +5351,86 @@ export interface components {
             msg: string;
             /** Error Type */
             type: string;
+        };
+        /** VarianceOut */
+        VarianceOut: {
+            budget: components["schemas"]["BudgetOut"];
+            /** Through Month */
+            through_month: number;
+            /** Rows */
+            rows: components["schemas"]["VarianceRowOut"][];
+            expense_totals: components["schemas"]["VarianceTotals"];
+            revenue_totals: components["schemas"]["VarianceTotals"];
+        };
+        /** VarianceRowOut */
+        VarianceRowOut: {
+            /** Account Id */
+            account_id: number;
+            /** Account Code */
+            account_code: string;
+            /** Account Name */
+            account_name: string;
+            /**
+             * Account Type
+             * @enum {string}
+             */
+            account_type: "expense" | "revenue";
+            /** Budgeted */
+            budgeted: boolean;
+            /** Monthly Budget */
+            monthly_budget: string[];
+            /** Monthly Actual */
+            monthly_actual: string[];
+            /**
+             * Annual Budget
+             * @example 1250.00
+             */
+            annual_budget: string;
+            /**
+             * Budget Ytd
+             * @example 1250.00
+             */
+            budget_ytd: string;
+            /**
+             * Actual Ytd
+             * @example 1250.00
+             */
+            actual_ytd: string;
+            /**
+             * Variance Ytd
+             * @example 1250.00
+             */
+            variance_ytd: string;
+            /** Percent Used */
+            percent_used: string | null;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "ok" | "warning" | "exceeded" | "unbudgeted";
+        };
+        /** VarianceTotals */
+        VarianceTotals: {
+            /**
+             * Budget Ytd
+             * @example 1250.00
+             */
+            budget_ytd: string;
+            /**
+             * Actual Ytd
+             * @example 1250.00
+             */
+            actual_ytd: string;
+            /**
+             * Variance Ytd
+             * @example 1250.00
+             */
+            variance_ytd: string;
+            /**
+             * Annual Budget
+             * @example 1250.00
+             */
+            annual_budget: string;
         };
         /** VendorBillOut */
         VendorBillOut: {
@@ -12366,6 +13505,1815 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Page_VendorPaymentOut_"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    payroll_list_employees: {
+        parameters: {
+            query?: {
+                search?: string | null;
+                department_id?: number | null;
+                status?: components["schemas"]["EmployeeStatus"] | null;
+                page?: number;
+                page_size?: number;
+                /** @description Field name, prefix with '-' for descending */
+                sort?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Page_EmployeeOut_"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    payroll_create_employee: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EmployeeCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EmployeeOut"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    payroll_get_employee: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                employee_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EmployeeOut"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    payroll_update_employee: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                employee_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EmployeeUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EmployeeOut"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    payroll_terminate_employee: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                employee_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TerminateIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EmployeeOut"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    payroll_employee_payslips: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                employee_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PayslipOut"][];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    payroll_get_tax_slabs: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                year: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TaxTableOut"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    payroll_put_tax_slabs: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                year: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TaxTableIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TaxTableOut"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    payroll_tax_preview: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TaxPreviewIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TaxPreviewOut"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    payroll_list_runs: {
+        parameters: {
+            query?: {
+                status?: components["schemas"]["PayrollStatus"] | null;
+                year?: number | null;
+                page?: number;
+                page_size?: number;
+                /** @description Field name, prefix with '-' for descending */
+                sort?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Page_PayrollRunOut_"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    payroll_create_run: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PayrollRunCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PayrollRunDetail"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    payroll_get_run: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                run_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PayrollRunDetail"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    payroll_recalculate_run: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                run_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PayrollRunDetail"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    payroll_submit_run: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                run_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PayrollRunDetail"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    payroll_approve_run: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                run_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RunDecisionIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PayrollRunDetail"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    payroll_reject_run: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                run_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RunDecisionIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PayrollRunDetail"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    payroll_pay_run: {
+        parameters: {
+            query?: never;
+            header?: {
+                "Idempotency-Key"?: string | null;
+            };
+            path: {
+                run_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PayRunIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PayrollRunDetail"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    payroll_payslip_pdf: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                payslip_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description PDF document */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/pdf": unknown;
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    budgets_list_budgets: {
+        parameters: {
+            query?: {
+                year?: number | null;
+                status?: components["schemas"]["BudgetStatus"] | null;
+                page?: number;
+                page_size?: number;
+                /** @description Field name, prefix with '-' for descending */
+                sort?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Page_BudgetOut_"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    budgets_create_budget: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BudgetCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BudgetOut"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    budgets_list_alerts: {
+        parameters: {
+            query?: {
+                budget_id?: number | null;
+                year?: number | null;
+                page?: number;
+                page_size?: number;
+                /** @description Field name, prefix with '-' for descending */
+                sort?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Page_BudgetAlertOut_"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    budgets_check_alerts: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BudgetCheckIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BudgetCheckOut"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    budgets_get_budget: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                budget_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BudgetOut"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    budgets_update_budget: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                budget_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BudgetUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BudgetOut"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    budgets_set_status: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                budget_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BudgetStatusIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BudgetOut"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    budgets_variance: {
+        parameters: {
+            query?: {
+                through_month?: number | null;
+            };
+            header?: never;
+            path: {
+                budget_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VarianceOut"];
                 };
             };
             /** @description Unauthorized */

@@ -67,6 +67,9 @@ def engine() -> Iterator[Engine]:
         seed_catalog(s)
         seed_visits(s, seed_patients(s))
         seed_insurance_registry(s)  # denial codes, insurers, policies (no claims)
+        from app.services import payroll
+
+        payroll.ensure_slabs(s, 2026)  # tax slabs only; tests create their own employees
     yield app_engine
     app_engine.dispose()
 

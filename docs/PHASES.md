@@ -81,9 +81,21 @@
 - [x] Seed: approval policies, 6 vendors, POs and bills in every state, a pending write-off, a variance bill pending approval, dunning notices
 - [x] Totals: pytest 315 (95% coverage; every service >= 88%), Vitest 22, Playwright 16
 
-## Phase 5: Payroll and budgets
+## Phase 5: Payroll and budgets ✅
 
-- [ ] Employees with salary structure (basic, allowances, deductions, tax slabs)
-- [ ] Monthly payroll run (background job), payslip PDFs, ledger posting
-- [ ] Budgets per department and account; variance report; alerts above a threshold
-- [ ] UI for payroll and budgets
+- [x] Migrations `0016_payroll` (employees, tax slabs, runs, payslips, frozen-after-posting triggers) and `0017_budgets` (budgets, lines, append-only alerts)
+- [x] Employees with salary structure (basic, housing, transport, other allowance, pension rate, other deduction), masked bank details, termination (never deleted)
+- [x] Payroll arithmetic with Decimal and documented rounding: proration, annualised progressive tax slabs, pension, capped deductions (unit + Hypothesis tests)
+- [x] Monthly run as a background job (Celery, in-process fallback, monthly beat), recalculation, approval through the generic engine, posting by department, idempotent payment via the payroll bank account, payslip PDFs
+- [x] Budgets per department and account (monthly amounts), variance report from SQL aggregates of the ledger, alert job with warning/exceeded levels
+- [x] UI: payroll (runs, employees, tax slabs with calculator), run detail (polling, approve/reject, pay, payslips), budgets list with alerts, budget detail with chart and variance table
+- [x] Seed: 2026-2027 tax slabs, 31 employees (one mid-month joiner, one leaver), runs June-October paid, November awaiting approval, 2026 budgets with an Emergency overrun and a Surgery warning
+- [x] Totals: pytest 362 (95% coverage), Vitest 29, Playwright 19
+
+## Phase 6: Reporting and dashboards
+
+- [ ] Dashboard metrics endpoints (SQL aggregates), charts
+- [ ] CSV / PDF exports
+- [ ] Notifications
+- [ ] Audit log viewer
+- [ ] Global search

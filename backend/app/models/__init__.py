@@ -31,6 +31,7 @@ from app.models.billing import (
     Refund,
     RefundStatus,
 )
+from app.models.budgets import AlertLevel, Budget, BudgetAlert, BudgetLine, BudgetStatus
 from app.models.catalog import PriceList, PriceListItem, Service
 from app.models.identity import RefreshToken, Role, RoleName, User, user_roles
 from app.models.insurance import (
@@ -58,11 +59,20 @@ from app.models.ledger import (
 )
 from app.models.org import CostCenter, Department
 from app.models.patients import Patient, Visit, VisitStatus, VisitType
+from app.models.payroll import (
+    Employee,
+    EmployeeStatus,
+    PayrollRun,
+    PayrollStatus,
+    Payslip,
+    TaxSlab,
+)
 from app.models.platform import IdempotencyKey
 
 __all__ = [
     "Account",
     "AccountType",
+    "AlertLevel",
     "Approval",
     "ApprovalComment",
     "ApprovalKind",
@@ -71,6 +81,10 @@ __all__ = [
     "AuditLog",
     "Base",
     "BillStatus",
+    "Budget",
+    "BudgetAlert",
+    "BudgetLine",
+    "BudgetStatus",
     "Claim",
     "ClaimAttachment",
     "ClaimEvent",
@@ -80,6 +94,8 @@ __all__ = [
     "DenialCode",
     "Department",
     "DunningNotice",
+    "Employee",
+    "EmployeeStatus",
     "EntryStatus",
     "FiscalPeriod",
     "IdempotencyKey",
@@ -96,6 +112,9 @@ __all__ = [
     "Payment",
     "PaymentKind",
     "PaymentMethod",
+    "PayrollRun",
+    "PayrollStatus",
+    "Payslip",
     "PeriodStatus",
     "Policy",
     "PriceList",
@@ -111,6 +130,7 @@ __all__ = [
     "Role",
     "RoleName",
     "Service",
+    "TaxSlab",
     "User",
     "Vendor",
     "VendorBill",

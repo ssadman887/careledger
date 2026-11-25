@@ -32,6 +32,16 @@ const STYLES: Record<
   no_po: { label: "No PO", variant: "outline" },
   not_received: { label: "Not received", variant: "destructive" },
   variance: { label: "Variance", variant: "destructive" },
+  queued: { label: "Queued", variant: "outline" },
+  calculated: { label: "Calculated", variant: "secondary" },
+  failed: { label: "Failed", variant: "destructive" },
+  active: { label: "Active", variant: "default" },
+  archived: { label: "Archived", variant: "outline" },
+  terminated: { label: "Terminated", variant: "outline" },
+  ok: { label: "On track", variant: "outline" },
+  warning: { label: "Warning", variant: "secondary" },
+  exceeded: { label: "Exceeded", variant: "destructive" },
+  unbudgeted: { label: "Unbudgeted", variant: "outline" },
 };
 
 export function StatusBadge({ status }: { status: string }) {

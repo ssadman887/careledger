@@ -6,8 +6,8 @@ only. Not for real patient data.**
 
 | Status | |
 |---|---|
-| Current phase | **4 – AR / AP and approvals** ✅ |
-| Next | 5 – Payroll and budgets |
+| Current phase | **5 – Payroll and budgets** ✅ |
+| Next | 6 – Reporting and dashboards |
 
 See [docs/PHASES.md](docs/PHASES.md) for the per-phase checklist.
 
@@ -122,6 +122,15 @@ The `Makefile` wraps the same commands for macOS/Linux.
   deductible, coinsurance, annual limit), claims drafted from invoices, the full claim
   lifecycle with a deterministic mock insurer, denials and appeals with attachments,
   remittance CSV import with reconciliation and posting.
+
+* **Phase 5 – Payroll and budgets**: employees and salary structures, income-tax slabs,
+  monthly payroll runs calculated by a background job, approval, ledger posting by
+  department, payment and payslip PDFs; department budgets with a variance report
+  against the ledger and threshold alerts.
+
+Try it (payroll): sign in as `finance`, open **Payroll**, open the November run and
+approve it; as `accountant`, pay it. Open **Budgets** > Emergency 2026 to see the
+salary overrun.
 
 * **Phase 4 – AR / AP and approvals**: one approvals inbox with configurable thresholds,
   AR aging by patient and insurer, reminder (dunning) job, bad-debt write-offs, vendors,

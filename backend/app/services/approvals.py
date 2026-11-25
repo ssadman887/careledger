@@ -57,6 +57,9 @@ DEFAULTS: dict[str, PolicyDefault] = {
         RoleName.FINANCE_MANAGER,
         "Vendor bills above the threshold or failing three-way match",
     ),
+    K.PAYROLL_RUN: PolicyDefault(
+        Decimal("0.00"), RoleName.FINANCE_MANAGER, "Monthly payroll runs (any amount)"
+    ),
 }
 
 
@@ -99,6 +102,9 @@ def request(
     amount: Decimal,
 ) -> Approval:
     p = policy(session, kind)
+    existing = repo.get_by_entity(session, kind, entity_id)
+    if existing is not None:
+        return _reopen(session, actor, existing, summary=summary, amount=amount, policy_=p)
     approval = Approval(
         kind=kind,
         entity_type=entity_type,
@@ -120,6 +126,54 @@ def request(
         entity_type="approval",
         entity_id=approval.id,
         action="create",
+        after=audit.snapshot(approval),
+    )
+    return approval
+
+
+def _reopen(
+    session: Session,
+    actor: Actor,
+    approval: Approval,
+    *,
+    summary: str,
+    amount: Decimal,
+    policy_: ApprovalPolicy,
+) -> Approval:
+    """Resubmission of a corrected record (e.g. a rejected payroll run): the same request goes
+    back to pending. The earlier decision stays in the audit log and as a comment."""
+    if approval.status == ApprovalStatus.PENDING:
+        raise Conflict("An approval request is already pending", code="already_pending")
+    before = audit.snapshot(approval)
+    approval.comments.append(
+        ApprovalComment(
+            approval_id=approval.id,
+            author_id=actor.id,
+            author_label=actor.label,
+            body=f"Resubmitted. Previous decision: {approval.status} by "
+            f"{approval.decided_by_label or '-'}"
+            + (f" ({approval.decision_note})" if approval.decision_note else ""),
+        )
+    )
+    approval.status = ApprovalStatus.PENDING
+    approval.summary = summary[:500]
+    approval.amount = amount
+    approval.threshold = policy_.threshold
+    approval.approver_role = policy_.approver_role
+    approval.requested_by_id = actor.id
+    approval.requested_by_label = actor.label
+    approval.decided_by_id = None
+    approval.decided_by_label = None
+    approval.decided_at = None
+    approval.decision_note = None
+    session.flush()
+    audit.record(
+        session,
+        actor,
+        entity_type="approval",
+        entity_id=approval.id,
+        action="resubmit",
+        before=before,
         after=audit.snapshot(approval),
     )
     return approval
@@ -163,7 +217,7 @@ Handler = Callable[[Session, Actor, int, str], object]
 
 def _handlers() -> dict[str, tuple[Handler, Handler]]:
     # Imported lazily: domain services import this module.
-    from app.services import ap, ar, ledger, payments
+    from app.services import ap, ar, ledger, payments, payroll
 
     return {
         K.MANUAL_JOURNAL: (
@@ -181,6 +235,10 @@ def _handlers() -> dict[str, tuple[Handler, Handler]]:
         K.VENDOR_BILL: (
             lambda s, a, i, n: ap.approve_bill(s, a, i, n),
             lambda s, a, i, n: ap.reject_bill(s, a, i, n),
+        ),
+        K.PAYROLL_RUN: (
+            lambda s, a, i, n: payroll.approve_run(s, a, i, n),
+            lambda s, a, i, n: payroll.reject_run(s, a, i, n),
         ),
     }
 

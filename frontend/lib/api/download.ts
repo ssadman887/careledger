@@ -35,3 +35,12 @@ export async function openReceiptPdf(paymentId: number, paymentNumber: string): 
   if (!data) return void toast.error(errorMessage(error, "Could not generate the receipt"));
   openBlob(data, `${paymentNumber}.pdf`);
 }
+
+export async function openPayslipPdf(payslipId: number, filename: string): Promise<void> {
+  const { data, error } = await api.GET("/api/v1/payroll/payslips/{payslip_id}/pdf", {
+    params: { path: { payslip_id: payslipId } },
+    parseAs: "blob",
+  });
+  if (!data) return void toast.error(errorMessage(error, "Could not generate the payslip"));
+  openBlob(data, filename);
+}

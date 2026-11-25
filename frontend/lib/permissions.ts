@@ -22,6 +22,10 @@ const RULES = {
   managePayables: ["accountant"],
   editApprovalPolicies: ["admin", "finance_manager"],
   approvalOversight: ["finance_manager", "auditor", "admin"],
+  managePayroll: ["accountant"],
+  approvePayroll: ["finance_manager"],
+  editTaxSlabs: ["accountant", "finance_manager"],
+  manageBudgets: ["finance_manager"],
 } as const satisfies Record<string, readonly RoleName[]>;
 
 export type Permission = keyof typeof RULES;

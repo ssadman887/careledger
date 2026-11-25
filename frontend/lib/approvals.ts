@@ -11,6 +11,8 @@ export function entityHref(a: Pick<Schemas["ApprovalOut"], "kind" | "entity_id">
       return "/ar?tab=write-offs";
     case "vendor_bill":
       return `/payables/bills/${a.entity_id}`;
+    case "payroll_run":
+      return `/payroll/runs/${a.entity_id}`;
     default:
       return "/approvals";
   }
