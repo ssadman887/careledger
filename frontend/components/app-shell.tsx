@@ -3,7 +3,7 @@
 import { LogOut, Menu, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -15,15 +15,26 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { api } from "@/lib/api/client";
 import { useAuth } from "@/lib/auth/auth-context";
 import { isAvailable, navForRoles } from "@/lib/nav";
 import { ROLE_LABELS } from "@/lib/roles";
 import { cn } from "@/lib/utils";
 
+function usePendingApprovals(): number {
+  const pathname = usePathname();
+  const [count, setCount] = useState(0);
+  useEffect(() => {
+    void api.GET("/api/v1/approvals/pending-count").then(({ data }) => setCount(data?.pending ?? 0));
+  }, [pathname]);
+  return count;
+}
+
 function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
   const { roles } = useAuth();
   const sections = navForRoles(roles);
+  const pending = usePendingApprovals();
 
   return (
     <nav aria-label="Main" className="flex flex-col gap-6 p-4">
@@ -61,7 +72,17 @@ function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
                       active && "bg-sidebar-accent text-accent-foreground font-medium",
                     )}
                   >
-                    {item.label}
+                    <span className="flex items-center justify-between">
+                      {item.label}
+                      {item.href === "/approvals" && pending > 0 && (
+                        <Badge
+                          className="h-5 min-w-5 justify-center px-1.5 text-[10px]"
+                          aria-label={`${pending} pending`}
+                        >
+                          {pending}
+                        </Badge>
+                      )}
+                    </span>
                   </Link>
                 </li>
               );

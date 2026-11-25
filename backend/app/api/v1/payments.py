@@ -4,7 +4,6 @@ from typing import Annotated, Any
 from fastapi import APIRouter, Depends, Header, Query, Response, status
 
 from app.api.v1.billing_presenters import payment_detail, payment_out, refund_out
-from app.core.config import get_settings
 from app.core.deps import DbSession, read_roles, require_roles
 from app.core.errors import ErrorEnvelope
 from app.core.masking import payment_reference
@@ -20,7 +19,7 @@ from app.schemas.billing import (
     RefundIn,
     RefundOut,
 )
-from app.services import idempotency, payments, pdf
+from app.services import approvals, idempotency, payments, pdf
 from app.services.audit import Actor
 
 router = APIRouter(
@@ -167,7 +166,7 @@ def request_refund(
             payment_id=payment_id,
             amount=body.amount,
             reason=body.reason,
-            approval_threshold=get_settings().refund_approval_threshold,
+            approval_threshold=approvals.threshold(db, "refund"),
         )
         return refund_out(refund).model_dump(mode="json")
 

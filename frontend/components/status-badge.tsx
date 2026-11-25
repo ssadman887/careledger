@@ -27,6 +27,11 @@ const STYLES: Record<
   overpaid: { label: "Overpaid", variant: "destructive" },
   unmatched: { label: "Unmatched", variant: "destructive" },
   imported: { label: "Imported", variant: "secondary" },
+  pending: { label: "Pending", variant: "secondary" },
+  received: { label: "Received", variant: "default" },
+  no_po: { label: "No PO", variant: "outline" },
+  not_received: { label: "Not received", variant: "destructive" },
+  variance: { label: "Variance", variant: "destructive" },
 };
 
 export function StatusBadge({ status }: { status: string }) {

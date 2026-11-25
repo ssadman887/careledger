@@ -6,8 +6,8 @@ only. Not for real patient data.**
 
 | Status | |
 |---|---|
-| Current phase | **3 – Insurance and claims** ✅ |
-| Next | 4 – AR / AP and approvals |
+| Current phase | **4 – AR / AP and approvals** ✅ |
+| Next | 5 – Payroll and budgets |
 
 See [docs/PHASES.md](docs/PHASES.md) for the per-phase checklist.
 
@@ -122,6 +122,13 @@ The `Makefile` wraps the same commands for macOS/Linux.
   deductible, coinsurance, annual limit), claims drafted from invoices, the full claim
   lifecycle with a deterministic mock insurer, denials and appeals with attachments,
   remittance CSV import with reconciliation and posting.
+
+* **Phase 4 – AR / AP and approvals**: one approvals inbox with configurable thresholds,
+  AR aging by patient and insurer, reminder (dunning) job, bad-debt write-offs, vendors,
+  purchase orders, vendor bills with three-way match, scheduled and idempotent payments.
+
+Try it (approvals): sign in as `finance`, open **Approvals** and approve the pending
+write-off; as `accountant`, create a PO under **Payables**, record receipt, bill it and pay.
 
 Try it (claims): sign in as `insurance`, open **Claims**, submit a draft, choose
 **Run mock insurer** (pick partial approval or denial), appeal a denial, then import a

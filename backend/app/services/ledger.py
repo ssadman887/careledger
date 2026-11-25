@@ -27,7 +27,7 @@ from app.core.errors import (
 from app.core.money import quantize
 from app.models.ledger import EntryStatus, JournalEntry, JournalLine, PeriodStatus
 from app.repositories import ledger as repo
-from app.services import audit
+from app.services import approvals, audit
 from app.services.audit import Actor
 
 ZERO = Decimal("0.00")
@@ -297,6 +297,16 @@ def create_manual_entry(
             session, actor, draft, status=EntryStatus.PENDING_APPROVAL, total=total
         )
         action = "create"
+        approvals.request(
+            session,
+            actor,
+            kind="manual_journal",
+            entity_type="journal_entry",
+            entity_id=entry.id,
+            reference=entry.entry_number,
+            summary=memo,
+            amount=total,
+        )
     audit.record(
         session,
         actor,
@@ -341,6 +351,9 @@ def approve_entry(session: Session, actor: Actor, entry_id: int) -> JournalEntry
         before=before,
         after=entry_snapshot(entry),
     )
+    approvals.record_decision(
+        session, actor, kind="manual_journal", entity_id=entry.id, approved=True, note=""
+    )
     return entry
 
 
@@ -361,5 +374,8 @@ def reject_entry(session: Session, actor: Actor, entry_id: int, reason: str) -> 
         action="reject",
         before=before,
         after=entry_snapshot(entry),
+    )
+    approvals.record_decision(
+        session, actor, kind="manual_journal", entity_id=entry.id, approved=False, note=reason
     )
     return entry

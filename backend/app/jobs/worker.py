@@ -35,3 +35,37 @@ def run_mock_insurer() -> int:
     actor = Actor(id=None, label=mock_insurer.MOCK_ACTOR_LABEL, roles=frozenset())
     with session_scope() as session:
         return len(mock_insurer.run_batch(session, actor))
+
+
+@celery_app.task(name="careledger.dunning_run")
+def run_dunning() -> int:
+    """Daily: create reminders for overdue patient balances."""
+    from datetime import UTC, datetime
+
+    from app.core.db import session_scope
+    from app.services import ar
+    from app.services.audit import Actor
+
+    actor = Actor(id=None, label="dunning-job", roles=frozenset())
+    with session_scope() as session:
+        return len(ar.run_dunning(session, actor, as_of=datetime.now(UTC).date()))
+
+
+@celery_app.task(name="careledger.vendor_payment_run")
+def run_vendor_payments() -> int:
+    """Daily: pay approved vendor bills whose scheduled date has arrived."""
+    from datetime import UTC, datetime
+
+    from app.core.db import session_scope
+    from app.services import ap
+    from app.services.audit import Actor
+
+    actor = Actor(id=None, label="payment-run-job", roles=frozenset())
+    with session_scope() as session:
+        return len(ap.run_scheduled_payments(session, actor, as_of=datetime.now(UTC).date()))
+
+
+celery_app.conf.beat_schedule = {
+    "dunning-daily": {"task": "careledger.dunning_run", "schedule": 24 * 3600},
+    "vendor-payments-daily": {"task": "careledger.vendor_payment_run", "schedule": 24 * 3600},
+}

@@ -1,5 +1,24 @@
 """Import every model module so Base.metadata is complete (Alembic autogenerate, tests)."""
 
+from app.models.ap import (
+    BillStatus,
+    MatchResult,
+    POStatus,
+    PurchaseOrder,
+    PurchaseOrderLine,
+    Vendor,
+    VendorBill,
+    VendorBillLine,
+    VendorPayment,
+)
+from app.models.approvals import (
+    Approval,
+    ApprovalComment,
+    ApprovalKind,
+    ApprovalPolicy,
+    ApprovalStatus,
+)
+from app.models.ar import DunningNotice, WriteOff, WriteOffStatus
 from app.models.audit import AuditLog
 from app.models.base import Base
 from app.models.billing import (
@@ -44,8 +63,14 @@ from app.models.platform import IdempotencyKey
 __all__ = [
     "Account",
     "AccountType",
+    "Approval",
+    "ApprovalComment",
+    "ApprovalKind",
+    "ApprovalPolicy",
+    "ApprovalStatus",
     "AuditLog",
     "Base",
+    "BillStatus",
     "Claim",
     "ClaimAttachment",
     "ClaimEvent",
@@ -54,6 +79,7 @@ __all__ = [
     "CostCenter",
     "DenialCode",
     "Department",
+    "DunningNotice",
     "EntryStatus",
     "FiscalPeriod",
     "IdempotencyKey",
@@ -63,7 +89,9 @@ __all__ = [
     "InvoiceStatus",
     "JournalEntry",
     "JournalLine",
+    "MatchResult",
     "MatchStatus",
+    "POStatus",
     "Patient",
     "Payment",
     "PaymentKind",
@@ -72,6 +100,8 @@ __all__ = [
     "Policy",
     "PriceList",
     "PriceListItem",
+    "PurchaseOrder",
+    "PurchaseOrderLine",
     "RefreshToken",
     "Refund",
     "RefundStatus",
@@ -82,8 +112,14 @@ __all__ = [
     "RoleName",
     "Service",
     "User",
+    "Vendor",
+    "VendorBill",
+    "VendorBillLine",
+    "VendorPayment",
     "Visit",
     "VisitStatus",
     "VisitType",
+    "WriteOff",
+    "WriteOffStatus",
     "user_roles",
 ]

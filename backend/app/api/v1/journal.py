@@ -3,7 +3,6 @@ from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, Query, status
 
-from app.core.config import get_settings
 from app.core.deps import DbSession, read_roles, require_roles
 from app.core.errors import ErrorEnvelope
 from app.core.pagination import Page, PageParams, page_params
@@ -17,6 +16,7 @@ from app.schemas.ledger import (
     ReasonIn,
     ReverseIn,
 )
+from app.services import approvals
 from app.services import ledger as ledger_service
 from app.services.audit import Actor
 from app.services.ledger import LineInput
@@ -129,7 +129,7 @@ def create_entry(body: JournalEntryCreate, actor: JournalWrite, db: DbSession) -
             )
             for ln in body.lines
         ],
-        approval_threshold=get_settings().manual_journal_approval_threshold,
+        approval_threshold=approvals.threshold(db, "manual_journal"),
     )
     return _single(db, entry)
 

@@ -68,10 +68,22 @@
 - [x] Seed: 4 insurers, 34 policies, claims in every state, remittances with matched, short-paid and unmatched lines
 - [x] Totals: pytest 276 (95% coverage; every service >= 88%), Vitest 19, Playwright 12
 
-## Phase 4: AR / AP and approvals
+## Phase 4: AR / AP and approvals ✅
 
-- [ ] AR aging (0-30, 31-60, 61-90, 90+) by patient and insurer; dunning reminder job
-- [ ] Write-offs with approval, posting to bad-debt expense
-- [ ] Generic approval engine (request, approve/reject, comment, thresholds)
-- [ ] Vendors, purchase orders, vendor bills with three-way match, approval, scheduled payment, posting
-- [ ] UI for AR, approvals and payables
+- [x] Migrations `0012_approvals`, `0013_ar`, `0014_ap`
+- [x] Generic approval engine (policies with thresholds and approver roles, requests, decisions, comments); manual journals and refunds routed through it
+- [x] AR aging by patient and by insurer (SQL aggregates, inclusive bucket bounds, as-of date)
+- [x] Dunning reminder job (Celery + endpoint), one notice per invoice per level
+- [x] Write-offs with approval, posting to bad-debt expense
+- [x] Vendors (masked bank details), purchase orders (issue, receive, cancel), vendor bills with three-way match, approval, scheduled payment runs, idempotent payments
+- [x] Ledger: AP approval posts expenses / AP; payments AP / bank; AP and AR-Insurers reconcile to sub-ledgers (tested)
+- [x] UI: approvals inbox (to decide, mine, all, policies) with sidebar badge, AR page (aging charts and tables, reminders, write-offs), invoice write-off action, payables (bills, POs, vendors, payments) with bill and PO detail pages
+- [x] Seed: approval policies, 6 vendors, POs and bills in every state, a pending write-off, a variance bill pending approval, dunning notices
+- [x] Totals: pytest 311 (95% coverage; every service >= 88%), Vitest 22, Playwright 15
+
+## Phase 5: Payroll and budgets
+
+- [ ] Employees with salary structure (basic, allowances, deductions, tax slabs)
+- [ ] Monthly payroll run (background job), payslip PDFs, ledger posting
+- [ ] Budgets per department and account; variance report; alerts above a threshold
+- [ ] UI for payroll and budgets

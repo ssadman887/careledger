@@ -45,7 +45,8 @@ export default function InvoicePage() {
   const [invoice, setInvoice] = useState<Invoice | null>(null);
   const [payments, setPayments] = useState<Payment[]>([]);
   const [depositBalance, setDepositBalance] = useState("0.00");
-  const [dialog, setDialog] = useState<"pay" | "deposit" | "void" | "issue" | null>(null);
+  const [dialog, setDialog] = useState<"pay" | "deposit" | "void" | "issue" | "writeoff" | null>(null);
+  const [woAmount, setWoAmount] = useState("");
   const [refundFor, setRefundFor] = useState<Payment | null>(null);
   const [reason, setReason] = useState("");
   const [issueDate, setIssueDate] = useState(new Date().toISOString().slice(0, 10));
@@ -87,6 +88,22 @@ export default function InvoicePage() {
     toast.success(`${data.invoice_number} issued and posted to the ledger`);
     setDialog(null);
     setInvoice(data);
+  };
+  const writeOff = async () => {
+    setBusy(true);
+    const { data, error } = await api.POST("/api/v1/ar/write-offs", {
+      body: { invoice_id: invoice.id, amount: woAmount.trim(), reason },
+    });
+    setBusy(false);
+    if (!data) return void toast.error(errorMessage(error, "Write-off failed"));
+    toast.success(
+      data.status === "pending_approval"
+        ? `${data.write_off_number} sent for finance-manager approval`
+        : `${data.write_off_number} posted`,
+    );
+    setDialog(null);
+    setReason("");
+    void load();
   };
   const voidInvoice = async () => {
     setBusy(true);
@@ -131,6 +148,18 @@ export default function InvoicePage() {
                 )}
                 <Button onClick={() => setDialog("pay")}>Record payment</Button>
               </>
+            )}
+            {can(roles, "collections") && payable && (toCents(invoice.patient_due) ?? 0n) > 0n && (
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setWoAmount(invoice.patient_due);
+                  setReason("");
+                  setDialog("writeoff");
+                }}
+              >
+                Write off
+              </Button>
             )}
             {can(roles, "voidInvoice") && invoice.status !== "void" && (
               <Button variant="outline" onClick={() => setDialog("void")}>
@@ -413,6 +442,40 @@ export default function InvoicePage() {
             </Button>
             <Button onClick={() => void issue()} disabled={busy}>
               Issue and post
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      <Dialog open={dialog === "writeoff"} onOpenChange={(o) => !o && setDialog(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Write off patient balance</DialogTitle>
+            <DialogDescription>
+              Posts Dr Bad Debt Expense / Cr AR-Patients once a finance manager approves. Patient owes{" "}
+              <Money value={invoice.patient_due} />.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="wo-amount">Amount</Label>
+              <Input
+                id="wo-amount"
+                inputMode="decimal"
+                value={woAmount}
+                onChange={(e) => setWoAmount(e.target.value)}
+              />
+            </div>
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="wo-reason">Reason</Label>
+              <Textarea id="wo-reason" rows={2} value={reason} onChange={(e) => setReason(e.target.value)} />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDialog(null)}>
+              Cancel
+            </Button>
+            <Button onClick={() => void writeOff()} disabled={busy || !reason.trim() || !woAmount.trim()}>
+              Request write-off
             </Button>
           </DialogFooter>
         </DialogContent>

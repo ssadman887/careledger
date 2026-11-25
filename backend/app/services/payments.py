@@ -24,7 +24,7 @@ from app.models.billing import (
     RefundStatus,
 )
 from app.repositories import billing as repo
-from app.services import audit, ledger, posting
+from app.services import approvals, audit, ledger, posting
 from app.services.audit import Actor
 from app.services.invoices import get_invoice, refresh_payment_status
 from app.services.ledger import EntryDraft
@@ -399,6 +399,18 @@ def request_refund(
         refund.decided_by_id = actor.id
         refund.decision_note = "Below approval threshold"
         session.flush()
+    else:
+        approvals.request(
+            session,
+            actor,
+            kind="refund",
+            entity_type="refund",
+            entity_id=refund.id,
+            reference=refund.refund_number,
+            summary=f"Refund {amount:.2f} of {payment.payment_number} to "
+            f"{payment.patient.full_name}: {reason}",
+            amount=amount,
+        )
     audit.record(
         session,
         actor,
@@ -440,6 +452,9 @@ def approve_refund(
         before=before,
         after=audit.snapshot(refund),
     )
+    approvals.record_decision(
+        session, actor, kind="refund", entity_id=refund.id, approved=True, note=note
+    )
     return refund
 
 
@@ -460,5 +475,8 @@ def reject_refund(session: Session, actor: Actor, refund_id: int, note: str) -> 
         action="status_change",
         before=before,
         after=audit.snapshot(refund),
+    )
+    approvals.record_decision(
+        session, actor, kind="refund", entity_id=refund.id, approved=False, note=note
     )
     return refund

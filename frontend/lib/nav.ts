@@ -16,7 +16,7 @@ export interface NavSection {
 }
 
 /** Phase currently implemented. Bump as phases land. */
-export const CURRENT_PHASE = 3;
+export const CURRENT_PHASE = 4;
 
 const ALL: readonly RoleName[] = [
   "admin",
@@ -89,7 +89,12 @@ export const NAV: readonly NavSection[] = [
   {
     title: "Governance",
     items: [
-      { label: "Approvals", href: "/approvals", roles: ["finance_manager", "accountant"], phase: 4 },
+      {
+        label: "Approvals",
+        href: "/approvals",
+        roles: ["finance_manager", "accountant", "billing_clerk", "admin"],
+        phase: 4,
+      },
       { label: "Audit log", href: "/audit", roles: ["admin", "finance_manager"], phase: 6 },
       { label: "Users", href: "/admin/users", roles: ["admin"], phase: 0 },
     ],

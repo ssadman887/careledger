@@ -2,6 +2,8 @@ from fastapi import APIRouter
 
 from app.api.v1 import (
     accounts,
+    approvals,
+    ar,
     audit,
     auth,
     catalog,
@@ -11,6 +13,7 @@ from app.api.v1 import (
     invoices,
     journal,
     patients,
+    payables,
     payments,
     periods,
     remittances,
@@ -34,3 +37,6 @@ api_router.include_router(payments.router)
 api_router.include_router(insurance.router)
 api_router.include_router(claims.router)
 api_router.include_router(remittances.router)
+api_router.include_router(approvals.router)
+api_router.include_router(ar.router)
+api_router.include_router(payables.router)

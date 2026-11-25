@@ -189,6 +189,29 @@ Account codes come from the seeded default hospital chart of accounts (Phase 1).
   lines never deleted; CHECKs keep `insurer + patient = billed`, `approved <= claimed`,
   `paid + adjusted <= claimed`, and the invoice balance constraints.
 
+### Approvals, AR and AP (Phase 4)
+
+* **Approval engine** (`services/approvals.py`): `approval_policies` hold, per kind
+  (`manual_journal`, `refund`, `write_off`, `vendor_bill`), the threshold (approval needed when
+  the amount is strictly above it), the approver role and an active flag; admins and finance
+  managers edit them at runtime. Domain services call `needs_approval()` / `request()`;
+  `decide()` enforces requester != approver and the approver role, requires a note to reject,
+  and dispatches to the kind's handler. Domain endpoints (e.g. journal approve) call
+  `record_decision()` so the inbox stays in sync. Comments are kept per request.
+* **AR aging** (`services/ar.py`, SQL `CASE` aggregates): patient balances (`patient_due`) aged
+  from the invoice date; insurer balances (claimed − paid − adjusted on open claims) aged from
+  submission. Buckets 0-30 / 31-60 / 61-90 / 90+ with inclusive bounds; documents dated after
+  `as_of` are excluded. The insurer aging total equals the AR-Insurers balance.
+* **Dunning**: daily job (`careledger.dunning_run`) and `POST /ar/dunning/run` create one
+  simulated reminder per invoice per level (1-30, 31-60, 61+ days past due).
+* **Write-offs**: patient balance only; Dr 5400 Bad Debt / Cr 1100 on approval, increasing
+  `invoices.adjusted_amount`. Policy threshold defaults to 0 (every write-off needs approval).
+* **AP**: purchase orders (draft → issued → received → closed / cancelled), bills with a
+  three-way match (`no_po`, `matched`, `not_received`, `variance` when bills on a PO exceed it),
+  approval when unmatched or above the vendor-bill threshold (5,000.00), posting
+  Dr expense lines / Cr 2010 on approval, payments Dr 2010 / Cr 1020 (idempotent), scheduled
+  payment runs (`careledger.vendor_payment_run`). The 2010 balance equals open bills (tested).
+
 ## 5. Claim state machine
 
 ```mermaid
