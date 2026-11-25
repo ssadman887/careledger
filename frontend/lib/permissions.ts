@@ -1,0 +1,20 @@
+import type { RoleName } from "@/lib/roles";
+
+/**
+ * UI affordances only. The backend enforces every one of these rules; hiding a button is
+ * never the security boundary. Keep in sync with the role dependencies in app/api/v1.
+ */
+const RULES = {
+  manageAccounts: ["admin", "accountant"],
+  postJournal: ["accountant"],
+  approveJournal: ["finance_manager"],
+  managePeriods: ["accountant", "finance_manager"],
+  manageUsers: ["admin"],
+} as const satisfies Record<string, readonly RoleName[]>;
+
+export type Permission = keyof typeof RULES;
+
+export function can(roles: readonly RoleName[], permission: Permission): boolean {
+  const allowed: readonly RoleName[] = RULES[permission];
+  return roles.some((r) => allowed.includes(r));
+}

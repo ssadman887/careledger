@@ -60,13 +60,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 
   const logout = useCallback(async () => {
+    // End the local session first so nothing can act on stale tokens, then revoke server-side.
     const tokens = readTokens();
-    if (tokens) {
-      await api.POST("/api/v1/auth/logout", { body: { refresh_token: tokens.refreshToken } });
-    }
     clearTokens();
     setUser(null);
     router.replace("/login");
+    if (tokens) {
+      await api.POST("/api/v1/auth/logout", { body: { refresh_token: tokens.refreshToken } });
+    }
   }, [router]);
 
   const value = useMemo<AuthState>(

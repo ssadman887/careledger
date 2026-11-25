@@ -22,13 +22,25 @@
 - [x] ruff, mypy strict, eslint (no `any`), prettier, pre-commit
 - [x] CI workflow (backend, frontend, compose smoke test)
 
-## Phase 1: Ledger core
+## Phase 1: Ledger core ✅
 
-- [ ] Chart of accounts (hierarchy, types, cost centers) + default hospital CoA seed
-- [ ] Fiscal periods (open/close with trial-balance pre-check)
-- [ ] Journal engine `post_entry`, `reverse_entry`
-- [ ] DB safeguards: balance constraint trigger, immutability trigger, closed-period trigger
-- [ ] Reports: trial balance, income statement, balance sheet, account ledger
-- [ ] Manual journal entries with approval threshold
-- [ ] UI: accounts, journal entries, reports
-- [ ] Tests incl. Hypothesis trial-balance invariant
+- [x] Migrations `0003_org` (departments, cost centers) and `0004_ledger` (accounts, periods, entries, lines)
+- [x] Chart of accounts CRUD (5 types, header/child hierarchy, cycle checks, cost centers) + 50-account hospital CoA seed
+- [x] Departments mapped to revenue accounts; cost centers per department
+- [x] Fiscal periods: monthly seed, create, pre-close check, close (locked forever, in order)
+- [x] Journal engine `post_entry`, `reverse_entry` (mirror entry, linked both ways)
+- [x] DB safeguards: deferred balance triggers, immutability triggers, open-period trigger, period guard, no-overlap exclusion
+- [x] Manual journal entries with approval above threshold; finance-manager approve/reject; no self-approval
+- [x] Reports: trial balance, income statement, balance sheet (computed retained earnings), account ledger (window-function running balance, paginated)
+- [x] UI: chart of accounts (tree, create/edit/deactivate), journal list with filters, line-item entry editor with live balance, entry detail with reverse/approve/reject, fiscal periods with pre-close check, reports with 4 tabs
+- [x] Tests: unbalanced rejected (service + DB), closed-period posting rejected (service + DB), UPDATE/DELETE on posted lines rejected at DB level, reversal nets to zero, Hypothesis invariant (60 random sequences incl. reversals keep TB at exactly zero)
+- [x] Totals: pytest 92 (96% coverage; every service ≥ 88%), Vitest 15, Playwright 7
+
+## Phase 2: Patient billing
+
+- [ ] Patients & visits (synthetic), service catalog, price lists with effective dates
+- [ ] Invoices (lines, discounts, tax), lifecycle, void with reversal
+- [ ] Payments (cash, card mock, transfer), partial, deposits, refunds with approval
+- [ ] Idempotency-Key on payment endpoints
+- [ ] Auto-posting per ARCHITECTURE section 4; PDF invoice & receipt
+- [ ] UI: invoice editor, payment recording, invoice list

@@ -53,10 +53,12 @@ def engine() -> Iterator[Engine]:
 
     from app.core.db import engine as app_engine
     from app.core.db import session_scope
+    from seed.ledger import seed_ledger
     from seed.users import seed_roles, seed_users
 
     with session_scope() as s:
         seed_users(s, seed_roles(s))
+        seed_ledger(s)
     yield app_engine
     app_engine.dispose()
 
@@ -87,6 +89,13 @@ def db(connection: Connection) -> Iterator[Session]:
         session.close()
 
 
+def check_deferred(session: Session) -> None:
+    """Fire pending deferred constraint triggers now (tests never really COMMIT)."""
+    session.flush()
+    session.execute(text("SET CONSTRAINTS ALL IMMEDIATE"))
+    session.execute(text("SET CONSTRAINTS ALL DEFERRED"))
+
+
 @pytest.fixture
 def client(db: Session) -> Iterator[TestClient]:
     from app.core.db import get_db
@@ -95,6 +104,7 @@ def client(db: Session) -> Iterator[TestClient]:
     def _override() -> Iterator[Session]:
         try:
             yield db
+            check_deferred(db)  # run deferred ledger triggers as a real COMMIT would
             db.commit()  # releases the savepoint; outer transaction still rolls back
         except Exception:
             db.rollback()
@@ -125,3 +135,29 @@ def login(client: TestClient, demo_password: str):  # type: ignore[no-untyped-de
         return {"Authorization": f"Bearer {resp.json()['access_token']}"}
 
     return _login
+
+
+@pytest.fixture
+def actor_for(db: Session):  # type: ignore[no-untyped-def]
+    """Build a service-layer Actor for a seeded demo user."""
+    from sqlalchemy import select
+
+    from app.models.identity import User
+    from app.services.auth import actor_for as make_actor
+
+    def _actor(username: str):  # type: ignore[no-untyped-def]
+        user = db.scalars(select(User).where(User.username == username)).one()
+        return make_actor(user)
+
+    return _actor
+
+
+@pytest.fixture
+def acct(db: Session):  # type: ignore[no-untyped-def]
+    """Look up seeded account ids by code."""
+    from sqlalchemy import select
+
+    from app.models.ledger import Account
+
+    ids = {a.code: a.id for a in db.scalars(select(Account)).all()}
+    return lambda code: ids[code]

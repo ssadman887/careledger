@@ -1,5 +1,6 @@
 """Domain errors and the consistent error envelope: {"error": {"code", "message", "details"}}."""
 
+from collections.abc import Sequence
 from typing import Any
 
 import structlog
@@ -76,6 +77,18 @@ def _envelope(status_code: int, code: str, message: str, details: Any = None) ->
     return JSONResponse(status_code=status_code, content=jsonable_encoder(body))
 
 
+def _clean_validation_errors(errors: Sequence[Any]) -> list[dict[str, Any]]:
+    """JSON-safe validation details. Drops `input` so submitted values (e.g. passwords) are
+    never echoed back, and stringifies `ctx` (it can hold exception objects)."""
+    cleaned: list[dict[str, Any]] = []
+    for err in errors:
+        item = {k: v for k, v in dict(err).items() if k not in {"input", "ctx", "url"}}
+        if "ctx" in err:
+            item["ctx"] = {str(k): str(v) for k, v in dict(err["ctx"]).items()}
+        cleaned.append(item)
+    return cleaned
+
+
 # Custom SQLSTATEs raised by our accounting triggers (see alembic migrations).
 LEDGER_SQLSTATES = {"P0001"}
 
@@ -97,7 +110,12 @@ def register_error_handlers(app: FastAPI) -> None:
 
     @app.exception_handler(RequestValidationError)
     async def _validation_error(_: Request, exc: RequestValidationError) -> JSONResponse:
-        return _envelope(422, "validation_error", "Request validation failed", exc.errors())
+        return _envelope(
+            422,
+            "validation_error",
+            "Request validation failed",
+            _clean_validation_errors(exc.errors()),
+        )
 
     @app.exception_handler(IntegrityError)
     async def _integrity_error(_: Request, exc: IntegrityError) -> JSONResponse:

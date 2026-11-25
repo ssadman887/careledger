@@ -84,6 +84,31 @@ always written atomically (rule 5 and rule 11). Background jobs use the same pat
    (`source_type`, `source_id` on the entry).
 6. Financial records are never hard-deleted (status fields / `deleted_at`).
 
+### Implementation (Phase 1)
+
+| Concern | Service (`app/services/ledger.py`) | Database (migration `0004_ledger`) |
+|---|---|---|
+| >= 2 lines, one-sided, 2 dp | `validate_lines` | `ck_journal_lines_one_sided`, `ck_journal_lines_non_negative`, deferred trigger `journal_lines_balanced` |
+| Debits = credits | `validate_lines` → `unbalanced_entry` | deferred constraint triggers `journal_lines_balanced` / `journal_entries_balanced` |
+| Immutability | no update paths for posted entries | `journal_lines_immutable`, `journal_entries_guard` (no DELETE ever, no UPDATE once posted) |
+| Open period | `require_open_period` (row lock `FOR SHARE`) | `journal_entries_open_period` (also `FOR SHARE`, serialises with close) |
+| Period lock | `periods.close_period` pre-check | `fiscal_periods_guard` (no reopen, no delete), `fiscal_periods_no_overlap` exclusion |
+| Header accounts | `validate_lines` → `header_account` | — |
+
+Entry lifecycle: `post_entry` writes `posted` directly. Manual entries (`create_manual_entry`)
+above `MANUAL_JOURNAL_APPROVAL_THRESHOLD` are written `pending_approval` and become `posted` only
+via `approve_entry` by a finance manager who is not the creator (or `rejected`). Pending and
+rejected entries never affect reports. Entry numbers come from the `journal_entry_number_seq`
+sequence (`JE-000001`).
+
+Reports (`app/services/reports.py`) aggregate posted lines in SQL (`SUM ... GROUP BY`); the
+account ledger computes its running balance with a window function. The balance sheet adds a
+computed retained-earnings line (cumulative revenue − expenses), so
+`assets = liabilities + equity` always holds.
+
+Period close pre-check: trial balance for the period balances, no `pending_approval` entries in
+the period, and all earlier periods are closed.
+
 ## 4. Auto-posting account mapping
 
 Account codes come from the seeded default hospital chart of accounts (Phase 1).

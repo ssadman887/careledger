@@ -6,8 +6,8 @@ only. Not for real patient data.**
 
 | Status | |
 |---|---|
-| Current phase | **0 – Foundation** ✅ |
-| Next | 1 – Ledger core |
+| Current phase | **1 – Ledger core** ✅ |
+| Next | 2 – Patient billing |
 
 See [docs/PHASES.md](docs/PHASES.md) for the per-phase checklist.
 
@@ -84,6 +84,17 @@ cd frontend && npm ci && npm run dev
 | `make gen-client` | Export OpenAPI and regenerate `frontend/lib/api/schema.d.ts` |
 
 On Windows without `make`, run the commands from the Makefile directly (they are one-liners).
+
+## What works today
+
+* **Phase 0**: login (username or email), role-aware navigation, user administration, audit log API.
+* **Phase 1 – Ledger**: chart of accounts, fiscal periods with pre-close check and permanent lock,
+  manual journal entries (approval above 10,000.00), reversals, trial balance, income statement,
+  balance sheet and account ledger. The database itself rejects unbalanced, edited, deleted or
+  closed-period postings.
+
+Try it: sign in as `accountant`, post an entry under **Journal entries → New entry**, then open
+**Financial reports**. Sign in as `finance` to approve an entry above the threshold.
 
 ## API conventions
 

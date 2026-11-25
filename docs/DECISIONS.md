@@ -19,3 +19,15 @@ Non-blocking ambiguities resolved during the build. Newest last.
 | 13 | 0 | TanStack Table pinned to v8; Next.js 15 (App Router) with Tailwind v4 and shadcn/ui (new-york, radix). | Stable APIs; v9 was a breaking alpha-era API at build time. |
 | 14 | 0 | Nav items for not-yet-built modules render disabled with a "Phase N" badge (`CURRENT_PHASE` in `lib/nav.ts`). | Keeps the shell honest while phases land. |
 | 15 | 0 | Generated OpenAPI spec (`frontend/openapi.json`) and types are committed; CI fails if they drift. | Never hand-write API types; drift is caught automatically. |
+| 16 | 1 | Manual journal approval uses entry statuses `pending_approval -> posted / rejected` (finance manager approves; creator can never approve their own). The generic approval engine (Phase 4) will wrap this. | Ships the spec'd threshold now without inventing the Phase 4 engine early. |
+| 17 | 1 | Threshold rule: approval required when total **>** `MANUAL_JOURNAL_APPROVAL_THRESHOLD` (default 10,000.00); equal amounts post directly. | Simplest unambiguous reading of "above". |
+| 18 | 1 | Closed periods can **never** be reopened (DB trigger) and periods must be closed in date order. | Strongest guarantee for "closed periods are locked"; corrections post into an open period via reversal. |
+| 19 | 1 | No year-end closing entries; the balance sheet shows cumulative revenue minus expenses as a computed "Retained earnings" line. | Keeps the ledger append-only and the statements always tie out. |
+| 20 | 1 | Header accounts cannot be posted to; a parent must be a header of the same type; code and type are immutable after creation; accounts with a non-zero balance cannot be deactivated. | Protects report integrity. |
+| 21 | 1 | Chart of accounts writable by `admin` and `accountant` (read by finance manager, auditor). | Spec names admin; accountants maintain the CoA day to day. |
+| 22 | 1 | Revenue by department: each department maps to its own revenue account (4110–4170); journal lines also carry optional department / cost-center dimensions. | Makes revenue-by-department reports a simple GROUP BY. |
+| 23 | 1 | Seed creates monthly fiscal periods from 2026-01 through 12 months after the current month, plus an opening-balance entry on 2026-01-01. | The demo keeps working whenever it is run. |
+| 24 | 1 | Default reversal date = original date if its period is still open, otherwise today (must be open). | Matches common practice. |
+| 25 | 1 | Deferred constraint triggers check balance at COMMIT; tests fire them with `SET CONSTRAINTS ALL IMMEDIATE` because test transactions never commit. | Multi-row inserts need deferred checks; tests still exercise the DB safeguard. |
+| 26 | 1 | Validation error details never echo the submitted `input` (and `ctx` is stringified). | Avoids reflecting passwords back; fixed a 500 on float money input. |
+| 27 | 1 | `openapi-typescript --default-non-nullable false` so request fields with server defaults stay optional in TS. | Matches FastAPI semantics. |

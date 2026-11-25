@@ -93,3 +93,15 @@ def test_unknown_route_uses_envelope(client: TestClient) -> None:
     resp = client.get("/api/v1/does-not-exist")
     assert resp.status_code == 404
     assert resp.json()["error"]["code"] == "not_found"
+
+
+def test_validation_errors_never_echo_submitted_values(client: TestClient) -> None:
+    resp = client.post(
+        "/api/v1/users",
+        json={"password": "super-secret-value"},
+        headers={"Authorization": "Bearer x"},
+    )
+    assert "super-secret-value" not in resp.text
+    resp = client.post("/api/v1/auth/login", json={"login": 123, "password": "hunter2-secret"})
+    assert resp.status_code == 422
+    assert "hunter2-secret" not in resp.text
