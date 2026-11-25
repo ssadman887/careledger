@@ -57,6 +57,7 @@ from app.models.ledger import (
     JournalLine,
     PeriodStatus,
 )
+from app.models.notifications import Notification
 from app.models.org import CostCenter, Department
 from app.models.patients import Patient, Visit, VisitStatus, VisitType
 from app.models.payroll import (
@@ -107,6 +108,7 @@ __all__ = [
     "JournalLine",
     "MatchResult",
     "MatchStatus",
+    "Notification",
     "POStatus",
     "Patient",
     "Payment",

@@ -34,7 +34,8 @@ def create_app() -> FastAPI:
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
-        expose_headers=["X-Request-ID"],
+        # Content-Disposition carries export file names to the browser (cross-origin).
+        expose_headers=["X-Request-ID", "Content-Disposition"],
     )
     app.add_middleware(RequestContextMiddleware)
     register_error_handlers(app)

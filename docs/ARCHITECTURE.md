@@ -248,6 +248,31 @@ Account codes come from the seeded default hospital chart of accounts (Phase 1).
   `warning` at the budget's threshold (default 90%). Raised once per budget, account, month and
   level; the table is append-only.
 
+### Reporting, dashboards, notifications and search (Phase 6)
+
+* **Dashboard** (`GET /dashboard?as_of=`): `services/dashboard.py` returns generic sections
+  (KPIs, charts, small tables) chosen by role on the server: finance (accountant, finance
+  manager, auditor), revenue cycle (billing clerk, finance manager, auditor), insurance
+  (insurance officer, finance manager, auditor), administration (admin, auditor). Every figure is
+  one SQL aggregate in `repositories/dashboard.py` (e.g. `generate_series` months LEFT JOINed to
+  posted ledger lines); KPIs reconcile with the income statement and GL balances (tested).
+  Values are decimal strings; the UI converts to numbers only to draw charts.
+* **Exports** (`/exports/...`): trial balance, income statement, balance sheet, AR aging,
+  budget variance, invoices and the audit log, as CSV (UTF-8 with BOM, formula-injection guard
+  on text cells, money as plain decimals) or PDF (ReportLab table with the synthetic-data
+  notice). Same role checks as the underlying report; every export writes an `export` audit
+  entry. List exports are capped at 5,000 rows. CORS exposes `Content-Disposition` so the
+  browser sees the file name.
+* **Notifications** (`notifications` table, never deleted): created in the same transaction as
+  their cause: approval requested (users with the approver role, not the requester), approval
+  decided (requester), budget alert (finance managers), background payroll calculation finished
+  or failed (preparer). Users list, count unread and mark read only their own notifications.
+* **Global search** (`GET /search?q=`): per-group ILIKE queries (wildcards escaped), five hits
+  each, only for groups the actor may read: patients, invoices, claims, journal entries,
+  accounts, payables, employees, users (admin).
+* **Audit viewer**: `/audit-log` gained an actor filter and `/audit-log/facets` (distinct types
+  and actions); the UI shows a field-by-field before/after diff.
+
 ## 5. Claim state machine
 
 ```mermaid

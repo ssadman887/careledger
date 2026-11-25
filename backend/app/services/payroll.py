@@ -36,7 +36,7 @@ from app.models.org import Department
 from app.models.payroll import Employee, EmployeeStatus, PayrollRun, PayrollStatus, Payslip, TaxSlab
 from app.repositories import billing as billing_repo
 from app.repositories import payroll as repo
-from app.services import approvals, audit, ledger, posting
+from app.services import approvals, audit, ledger, notifications, posting
 from app.services import payroll_math as pm
 from app.services.audit import Actor
 from app.services.ledger import EntryDraft, LineInput
@@ -370,6 +370,16 @@ def calculate_run(session: Session, actor: Actor, run_id: int) -> PayrollRun:
         before=before,
         after=audit.snapshot(run),
     )
+    if actor.id is None and run.created_by_id is not None:  # background job finished
+        notifications.notify(
+            session,
+            [run.created_by_id],
+            kind="payroll_calculated",
+            level="success",
+            title=f"Payroll {run.run_number} calculated",
+            body=f"{run.employee_count} payslips, net pay {run.net_total:.2f}. Review and submit.",
+            link=f"/payroll/runs/{run.id}",
+        )
     return run
 
 
@@ -390,6 +400,16 @@ def mark_failed(session: Session, actor: Actor, run_id: int, error: str) -> Payr
         before=before,
         after=audit.snapshot(run),
     )
+    if run.created_by_id is not None:
+        notifications.notify(
+            session,
+            [run.created_by_id],
+            kind="payroll_failed",
+            level="warning",
+            title=f"Payroll {run.run_number} calculation failed",
+            body=run.error or "",
+            link=f"/payroll/runs/{run.id}",
+        )
     return run
 
 

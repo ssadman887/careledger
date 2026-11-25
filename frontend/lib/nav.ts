@@ -16,7 +16,7 @@ export interface NavSection {
 }
 
 /** Phase currently implemented. Bump as phases land. */
-export const CURRENT_PHASE = 5;
+export const CURRENT_PHASE = 6;
 
 const ALL: readonly RoleName[] = [
   "admin",

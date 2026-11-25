@@ -29,7 +29,7 @@ from app.models.approvals import (
 )
 from app.models.identity import RoleName
 from app.repositories import approvals as repo
-from app.services import audit
+from app.services import audit, notifications
 from app.services.audit import Actor
 
 K = ApprovalKind
@@ -128,7 +128,21 @@ def request(
         action="create",
         after=audit.snapshot(approval),
     )
+    _notify_requested(session, approval)
     return approval
+
+
+def _notify_requested(session: Session, approval: Approval) -> None:
+    notifications.notify_role(
+        session,
+        approval.approver_role,
+        exclude=approval.requested_by_id,
+        kind="approval_requested",
+        level="action",
+        title=f"Approval needed: {approval.reference}",
+        body=approval.summary,
+        link="/approvals?tab=to_decide",
+    )
 
 
 def _reopen(
@@ -176,6 +190,7 @@ def _reopen(
         before=before,
         after=audit.snapshot(approval),
     )
+    _notify_requested(session, approval)
     return approval
 
 
@@ -209,6 +224,17 @@ def record_decision(
         before=before,
         after=audit.snapshot(approval),
     )
+    if approval.requested_by_id is not None and approval.requested_by_id != actor.id:
+        verb = "approved" if approved else "rejected"
+        notifications.notify(
+            session,
+            [approval.requested_by_id],
+            kind=f"approval_{verb}",
+            level="success" if approved else "warning",
+            title=f"{approval.reference} {verb} by {actor.label}",
+            body=note or approval.summary,
+            link=notifications.approval_link(approval.kind, approval.entity_id),
+        )
     return approval
 
 

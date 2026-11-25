@@ -5,6 +5,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
 
+import { GlobalSearch } from "@/components/global-search";
+import { NotificationBell } from "@/components/notification-bell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -142,7 +144,10 @@ export function AppShell({ children }: { children: ReactNode }) {
           >
             <Menu />
           </Button>
-          <div className="flex-1" />
+          <div className="flex flex-1 justify-center">
+            <GlobalSearch />
+          </div>
+          <NotificationBell />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="h-auto gap-3 py-1.5">

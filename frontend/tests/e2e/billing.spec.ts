@@ -79,7 +79,7 @@ test("billing clerk captures charges, issues, takes a partial payment and reques
   // The accountant can follow the invoice to its balanced journal entry.
   await login(page, "accountant");
   await page.goto("/journal");
-  await page.getByLabel("Search").fill(invoiceNumber);
+  await page.getByLabel("Search", { exact: true }).fill(invoiceNumber);
   await page
     .getByRole("link", { name: /^JE-\d{6}$/ })
     .first()
@@ -106,7 +106,7 @@ test("large refund waits for finance-manager approval", async ({ page }) => {
   await expect(page.getByText("$900.00").first()).toBeVisible();
 
   await page.goto("/payments?tab=payments");
-  await page.getByLabel("Search").fill(last);
+  await page.getByLabel("Search", { exact: true }).fill(last);
   await page
     .getByRole("row", { name: new RegExp(last) })
     .getByRole("button", { name: "Refund" })

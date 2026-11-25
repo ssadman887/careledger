@@ -4,6 +4,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 import { toast } from "sonner";
 
+import { ExportMenu } from "@/components/export-menu";
 import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -12,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { api, errorMessage, type Schemas } from "@/lib/api/client";
+import { downloadExport } from "@/lib/api/exports";
 import { useAccounts } from "@/lib/api/hooks";
 
 import { AccountLedgerView, BalanceSheetView, IncomeStatementView, TrialBalanceTable } from "./statements";
@@ -110,6 +112,19 @@ function ReportsInner() {
       <PageHeader
         title="Financial reports"
         description="Built from posted journal lines only. Pending and rejected entries are excluded."
+        actions={
+          tab !== "ledger" && (
+            <ExportMenu
+              onExport={(fmt) => {
+                const range = { date_from: dateFrom || undefined, date_to: dateTo || undefined };
+                if (tab === "trial-balance")
+                  return downloadExport("/api/v1/exports/trial-balance", fmt, range);
+                if (tab === "income") return downloadExport("/api/v1/exports/income-statement", fmt, range);
+                return downloadExport("/api/v1/exports/balance-sheet", fmt, { as_of: dateTo || undefined });
+              }}
+            />
+          )
+        }
       />
       <Tabs value={tab} onValueChange={setTab} className="mb-4">
         <TabsList className="flex-wrap">

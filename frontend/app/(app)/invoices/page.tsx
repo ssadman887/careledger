@@ -8,6 +8,7 @@ import { toast } from "sonner";
 
 import { DataTable, toSortParam } from "@/components/data-table";
 import { Money } from "@/components/money";
+import { ExportMenu } from "@/components/export-menu";
 import { PageHeader } from "@/components/page-header";
 import { StatusBadge } from "@/components/status-badge";
 import { Button } from "@/components/ui/button";
@@ -15,6 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { api, errorMessage, type Schemas } from "@/lib/api/client";
+import { downloadExport } from "@/lib/api/exports";
 import { useAuth } from "@/lib/auth/auth-context";
 import { can } from "@/lib/permissions";
 
@@ -129,13 +131,26 @@ export default function InvoicesPage() {
         title="Invoices"
         description="Draft invoices capture charges; issuing posts revenue to the ledger."
         actions={
-          can(roles, "bill") ? (
-            <Button asChild>
-              <Link href="/invoices/new">
-                <Plus /> New invoice
-              </Link>
-            </Button>
-          ) : undefined
+          <>
+            <ExportMenu
+              formats={["csv"]}
+              onExport={(fmt) =>
+                downloadExport("/api/v1/exports/invoices", fmt, {
+                  status: status === ALL ? undefined : status,
+                  date_from: dateFrom || undefined,
+                  date_to: dateTo || undefined,
+                  overdue: overdue || undefined,
+                })
+              }
+            />
+            {can(roles, "bill") && (
+              <Button asChild>
+                <Link href="/invoices/new">
+                  <Plus /> New invoice
+                </Link>
+              </Button>
+            )}
+          </>
         }
       />
       <div className="mb-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">

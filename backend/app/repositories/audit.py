@@ -24,6 +24,7 @@ def list_entries(
     action: str | None,
     date_from: datetime | None,
     date_to: datetime | None,
+    actor_label: str | None = None,
 ) -> tuple[Sequence[AuditLog], int]:
     stmt = select(AuditLog)
     if entity_type:
@@ -34,6 +35,8 @@ def list_entries(
         stmt = stmt.where(AuditLog.actor_id == actor_id)
     if action:
         stmt = stmt.where(AuditLog.action == action)
+    if actor_label:
+        stmt = stmt.where(func.lower(AuditLog.actor_label).contains(actor_label.lower()))
     if date_from:
         stmt = stmt.where(AuditLog.occurred_at >= date_from)
     if date_to:
@@ -42,3 +45,10 @@ def list_entries(
     order = AuditLog.id.asc() if params.sort == "id" else AuditLog.id.desc()
     rows = session.scalars(stmt.order_by(order).offset(params.offset).limit(params.page_size)).all()
     return rows, total
+
+
+def facets(session: Session) -> tuple[list[str], list[str]]:
+    """Distinct entity types and actions, for the audit viewer's filters."""
+    types = session.scalars(select(AuditLog.entity_type).distinct().order_by(AuditLog.entity_type))
+    actions = session.scalars(select(AuditLog.action).distinct().order_by(AuditLog.action))
+    return list(types.all()), list(actions.all())

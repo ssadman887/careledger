@@ -92,10 +92,21 @@
 - [x] Seed: 2026-2027 tax slabs, 31 employees (one mid-month joiner, one leaver), runs June-October paid, November awaiting approval, 2026 budgets with an Emergency overrun and a Surgery warning
 - [x] Totals: pytest 362 (95% coverage), Vitest 29, Playwright 19
 
-## Phase 6: Reporting and dashboards
+## Phase 6: Reporting and dashboards ✅
 
-- [ ] Dashboard metrics endpoints (SQL aggregates), charts
-- [ ] CSV / PDF exports
-- [ ] Notifications
-- [ ] Audit log viewer
-- [ ] Global search
+- [x] Migrations `0018_notifications` (append-only), `0019_alert_percent`
+- [x] Dashboard metrics endpoint with role-selected sections, all SQL aggregates (financial position, revenue cycle, insurance claims, system activity); KPIs reconcile with the ledger (tested)
+- [x] Charts: P&L trend, revenue by department, budget use, collections, payment mix, claims by status, audit activity
+- [x] CSV / PDF exports for trial balance, income statement, balance sheet, AR aging, budget variance, invoices and audit log (audited, formula-injection safe)
+- [x] Notifications for approvals, decisions, budget alerts and payroll jobs; bell with unread count, mark read / all read
+- [x] Audit log viewer with filters, field-level before/after diff and export
+- [x] Global search (header, `/` or Ctrl+K) across records the user may read
+- [x] Seed: notifications tidied so only pending approvals and budget alerts are unread
+- [x] Totals: pytest 380 (95% coverage), Vitest 33, Playwright 24
+
+## Phase 7: Hardening and demo readiness
+
+- [ ] Deterministic seed with 6 months of realistic activity (closed prior period, anomalies)
+- [ ] Playwright E2E for the demo script
+- [ ] N+1 queries, missing indexes, login rate limiting, authorization review of every endpoint
+- [ ] README with Mermaid architecture diagram, setup, demo credentials per role, screenshots

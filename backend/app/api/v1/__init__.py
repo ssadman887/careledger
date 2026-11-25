@@ -9,6 +9,8 @@ from app.api.v1 import (
     budgets,
     catalog,
     claims,
+    dashboard,
+    exports,
     health,
     insurance,
     invoices,
@@ -44,3 +46,5 @@ api_router.include_router(ar.router)
 api_router.include_router(payables.router)
 api_router.include_router(payroll.router)
 api_router.include_router(budgets.router)
+api_router.include_router(dashboard.router)
+api_router.include_router(exports.router)

@@ -107,7 +107,7 @@ class BudgetAlert(TimestampMixin, Base):
     level: Mapped[str] = mapped_column(String(20))
     budget_ytd: Mapped[Decimal] = mapped_column(Numeric(14, 2))
     actual_ytd: Mapped[Decimal] = mapped_column(Numeric(14, 2))
-    percent_used: Mapped[Decimal] = mapped_column(Numeric(7, 2))
+    percent_used: Mapped[Decimal] = mapped_column(Numeric(12, 2))
     message: Mapped[str] = mapped_column(String(300))
 
     account: Mapped[Account] = relationship(lazy="joined")

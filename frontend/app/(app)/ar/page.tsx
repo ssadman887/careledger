@@ -8,6 +8,7 @@ import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxi
 import { toast } from "sonner";
 
 import { Money } from "@/components/money";
+import { ExportMenu } from "@/components/export-menu";
 import { PageHeader } from "@/components/page-header";
 import { StatusBadge } from "@/components/status-badge";
 import { Button } from "@/components/ui/button";
@@ -25,6 +26,7 @@ import {
 } from "@/components/ui/table";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { api, errorMessage, type Schemas } from "@/lib/api/client";
+import { downloadExport } from "@/lib/api/exports";
 import { useAuth } from "@/lib/auth/auth-context";
 import { formatDateTime, formatMoney } from "@/lib/format";
 import { can } from "@/lib/permissions";
@@ -63,6 +65,11 @@ function Aging({ by }: { by: "patient" | "insurer" }) {
             Total outstanding <Money value={report.total} className="text-foreground font-semibold" />
           </p>
         )}
+        <div className="ml-auto">
+          <ExportMenu
+            onExport={(fmt) => downloadExport("/api/v1/exports/ar-aging", fmt, { by, as_of: asOf })}
+          />
+        </div>
       </div>
       {report && (
         <Card>

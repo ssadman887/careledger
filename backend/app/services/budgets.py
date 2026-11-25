@@ -26,7 +26,7 @@ from app.models.ledger import Account, AccountType
 from app.models.org import Department
 from app.repositories import budgets as repo
 from app.repositories import ledger as ledger_repo
-from app.services import audit
+from app.services import audit, notifications
 from app.services.audit import Actor
 
 ZERO = Decimal("0.00")
@@ -352,4 +352,13 @@ def check_alerts(session: Session, actor: Actor, *, as_of: date) -> list[BudgetA
                 after=audit.snapshot(alert),
             )
             created.append(alert)
+            notifications.notify_role(
+                session,
+                "finance_manager",
+                kind="budget_alert",
+                level="warning",
+                title=f"Budget {level}: {budget.department.name} {r.account.code}",
+                body=alert.message,
+                link=f"/budgets/{budget.id}",
+            )
     return created

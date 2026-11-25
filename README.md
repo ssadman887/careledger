@@ -6,8 +6,8 @@ only. Not for real patient data.**
 
 | Status | |
 |---|---|
-| Current phase | **5 – Payroll and budgets** ✅ |
-| Next | 6 – Reporting and dashboards |
+| Current phase | **6 – Reporting and dashboards** ✅ |
+| Next | 7 – Hardening and demo readiness |
 
 See [docs/PHASES.md](docs/PHASES.md) for the per-phase checklist.
 
@@ -122,6 +122,15 @@ The `Makefile` wraps the same commands for macOS/Linux.
   deductible, coinsurance, annual limit), claims drafted from invoices, the full claim
   lifecycle with a deterministic mock insurer, denials and appeals with attachments,
   remittance CSV import with reconciliation and posting.
+
+* **Phase 6 – Reporting and dashboards**: role-based dashboards built from SQL
+  aggregates, CSV/PDF exports of statements, aging, variance, invoices and the audit
+  log, in-app notifications, an audit log viewer with field-level diffs, and global
+  search.
+
+Try it (dashboards): sign in as `finance` for the financial, revenue and claims
+dashboards and the notification bell; press `/` to search; as `admin`, open
+**Audit log** and export it.
 
 * **Phase 5 – Payroll and budgets**: employees and salary structures, income-tax slabs,
   monthly payroll runs calculated by a background job, approval, ledger posting by

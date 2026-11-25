@@ -19,6 +19,7 @@ import { toast } from "sonner";
 
 import { AlertsTable } from "@/components/budgets/alerts-table";
 import { Money } from "@/components/money";
+import { ExportMenu } from "@/components/export-menu";
 import { PageHeader } from "@/components/page-header";
 import { StatusBadge } from "@/components/status-badge";
 import { Button } from "@/components/ui/button";
@@ -36,6 +37,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { api, errorMessage, type Schemas } from "@/lib/api/client";
+import { downloadExport } from "@/lib/api/exports";
 import { useAuth } from "@/lib/auth/auth-context";
 import { formatMoney } from "@/lib/format";
 import { MONTHS } from "@/lib/payroll";
@@ -216,6 +218,16 @@ export default function BudgetPage() {
             </SelectContent>
           </Select>
         </div>
+        <ExportMenu
+          onExport={(fmt) =>
+            downloadExport(
+              "/api/v1/exports/budgets/{budget_id}/variance",
+              fmt,
+              { through_month: report.through_month },
+              { budget_id: b.id },
+            )
+          }
+        />
         {canManage && b.status !== "archived" && (
           <div className="flex items-end gap-2">
             <div className="flex flex-col gap-1.5">

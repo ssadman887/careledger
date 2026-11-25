@@ -93,7 +93,7 @@ test("employees: accountant adds an employee; auditors see masked bank details",
 
   await login(page, "auditor");
   await page.goto("/payroll?tab=employees");
-  await page.getByLabel("Search").fill(last);
+  await page.getByLabel("Search", { exact: true }).fill(last);
   await page.getByRole("button", { name: `Test ${last}` }).click();
   await expect(page.getByText(/\*+5566/)).toBeVisible();
   await expect(page.getByText("GB00-E2E-445566")).toHaveCount(0);
