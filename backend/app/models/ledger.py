@@ -105,6 +105,8 @@ class JournalEntry(TimestampMixin, Base):
             "(status = 'posted') = (posted_at IS NOT NULL)", name="posted_at_matches_status"
         ),
         Index("ix_journal_entries_source", "source_type", "source_id"),
+        # Reports and dashboards filter posted entries by date range.
+        Index("ix_journal_entries_status_date", "status", "entry_date"),
     )
 
     id: Mapped[IntPK]

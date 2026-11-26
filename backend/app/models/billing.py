@@ -74,6 +74,8 @@ class Invoice(TimestampMixin, Base):
             name="insurance_within_balance",
         ),
         Index("ix_invoices_status_date", "status", "invoice_date"),
+        # Overdue balances, dunning and the revenue dashboard filter open invoices by due date.
+        Index("ix_invoices_status_due", "status", "due_date"),
     )
 
     id: Mapped[IntPK]

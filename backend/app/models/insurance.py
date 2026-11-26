@@ -220,7 +220,7 @@ class ClaimLine(TimestampMixin, Base):
     )
     line_no: Mapped[int] = mapped_column(Integer)
     invoice_line_id: Mapped[int] = mapped_column(
-        BigInteger, ForeignKey("invoice_lines.id", ondelete="RESTRICT")
+        BigInteger, ForeignKey("invoice_lines.id", ondelete="RESTRICT"), index=True
     )
     service_code: Mapped[str] = mapped_column(String(30), default="", server_default="")
     description: Mapped[str] = mapped_column(String(300))
@@ -330,5 +330,5 @@ class RemittanceLine(TimestampMixin, Base):
     message: Mapped[str] = mapped_column(Text, default="", server_default="")
     remark: Mapped[str] = mapped_column(String(255), default="", server_default="")
     payment_id: Mapped[int | None] = mapped_column(
-        BigInteger, ForeignKey("payments.id", ondelete="RESTRICT")
+        BigInteger, ForeignKey("payments.id", ondelete="RESTRICT"), index=True
     )

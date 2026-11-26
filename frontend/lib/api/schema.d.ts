@@ -30,7 +30,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Login */
+        /**
+         * Login
+         * @description Sign in. Repeated failures for an account or from an address are throttled (429).
+         */
         post: operations["auth_login"];
         delete?: never;
         options?: never;
@@ -6238,6 +6241,15 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description Too many failed sign-ins */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
         };

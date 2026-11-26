@@ -4,7 +4,7 @@ from collections.abc import Sequence
 from datetime import date
 
 from sqlalchemy import delete, func, or_, select
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, noload
 
 from app.core.pagination import PageParams
 from app.models.payroll import Employee, PayrollRun, Payslip, TaxSlab
@@ -85,7 +85,7 @@ def run_for_month(session: Session, year: int, month: int) -> PayrollRun | None:
 def list_runs(
     session: Session, params: PageParams, *, status: str | None, year: int | None
 ) -> tuple[Sequence[PayrollRun], int]:
-    stmt = select(PayrollRun)
+    stmt = select(PayrollRun).options(noload(PayrollRun.payslips))  # list rows only
     if status:
         stmt = stmt.where(PayrollRun.status == status)
     if year is not None:

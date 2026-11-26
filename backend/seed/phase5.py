@@ -73,16 +73,27 @@ YEAR = 2026
 # Emergency is under-budgeted (runs over), Surgery is tight (warning), others have headroom.
 SALARY_BUDGET_FACTOR = {"EMER": D("0.80"), "SURG": D("1.06")}
 DEFAULT_SALARY_FACTOR = D("1.15")
-SUPPLIES = {"EMER": "24000.00", "SURG": "36000.00", "LAB": "18000.00", "RAD": "12000.00"}
-REVENUE = {
-    "EMER": "8000.00",
-    "RAD": "6000.00",
-    "LAB": "2400.00",
-    "SURG": "45000.00",
-    "INPT": "55000.00",
-    "OPD": "2000.00",
-    "PHAR": "2400.00",
+# Other monthly budgets from June (account code -> monthly amount), sized against the activity
+# seed: costs with ~15% headroom; revenue targets near actuals (Emergency falls short).
+COSTS: dict[str, tuple[tuple[str, str], ...]] = {
+    "EMER": (("5200", "3700.00"),),
+    "SURG": (("5200", "5100.00"),),
+    "INPT": (("5200", "3250.00"),),
+    "LAB": (("5200", "1800.00"),),
+    "PHAR": (("5210", "10000.00"),),
+    "RAD": (("5500", "2750.00"),),
+    "ADMIN": (("5300", "8600.00"), ("5310", "4400.00")),
 }
+REVENUE = {
+    "EMER": "25000.00",
+    "RAD": "12000.00",
+    "LAB": "6000.00",
+    "SURG": "150000.00",
+    "INPT": "125000.00",
+    "OPD": "7500.00",
+    "PHAR": "6500.00",
+}
+FROM_JUNE = 5  # leading zero months (Jan-May)
 
 
 def _user(session: Session, username: str) -> Actor:
@@ -161,17 +172,22 @@ def seed_budgets(session: Session) -> None:
     finance = _user(session, "finance")
     gross = _monthly_gross_by_department(session)
     salaries = _account(session, "5100")
-    supplies = _account(session, "5200")
     for dept in session.scalars(select(Department).order_by(Department.code)).all():
         if dept.code not in gross:
             continue
         factor = SALARY_BUDGET_FACTOR.get(dept.code, DEFAULT_SALARY_FACTOR)
         monthly_salary = (gross[dept.code] * factor / 100).quantize(D("1")) * 100  # nearest 100
-        lines = [LineSpec(salaries, monthly=[D("0")] * 5 + [monthly_salary] * 7)]
-        if dept.code in SUPPLIES:
-            lines.append(LineSpec(supplies, annual=D(SUPPLIES[dept.code])))
+
+        def june_on(amount: Decimal) -> list[Decimal]:
+            return [D("0")] * FROM_JUNE + [amount] * (12 - FROM_JUNE)
+
+        lines = [LineSpec(salaries, monthly=june_on(monthly_salary))]
+        lines += [
+            LineSpec(_account(session, code), monthly=june_on(D(amount)))
+            for code, amount in COSTS.get(dept.code, ())
+        ]
         if dept.code in REVENUE and dept.revenue_account_id is not None:
-            lines.append(LineSpec(dept.revenue_account_id, annual=D(REVENUE[dept.code])))
+            lines.append(LineSpec(dept.revenue_account_id, monthly=june_on(D(REVENUE[dept.code]))))
         budget = budgets.create_budget(
             session,
             finance,
@@ -180,7 +196,7 @@ def seed_budgets(session: Session) -> None:
             name=f"{dept.name} {YEAR}",
             alert_threshold_percent=D("90.00"),
             lines=lines,
-            notes="Salaries budgeted from June, when payroll moved onto CareLedger.",
+            notes="Budgeted from June, when the hospital moved its books onto CareLedger.",
         )
         budgets.set_status(session, finance, budget.id, "active")
     # Alerts as at the last posted payroll month (the daily job continues from there).

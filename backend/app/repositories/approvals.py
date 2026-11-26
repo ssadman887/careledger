@@ -30,6 +30,16 @@ def get_by_entity(session: Session, kind: str, entity_id: int) -> Approval | Non
     return session.scalars(stmt).first()
 
 
+def ids_by_entities(session: Session, kind: str, entity_ids: Sequence[int]) -> dict[int, int]:
+    """entity id -> approval id for a page of records, in one query."""
+    if not entity_ids:
+        return {}
+    stmt = select(Approval.entity_id, Approval.id).where(
+        Approval.kind == kind, Approval.entity_id.in_(entity_ids)
+    )
+    return {int(e): int(a) for e, a in session.execute(stmt).all()}
+
+
 def list_approvals(
     session: Session,
     params: PageParams,

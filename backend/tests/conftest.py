@@ -14,6 +14,7 @@ TEST_DATABASE_URL = os.environ.get(
 )
 os.environ["DATABASE_URL"] = TEST_DATABASE_URL
 os.environ.setdefault("JWT_SECRET", "test-secret-test-secret-test-secret")
+os.environ["RATE_LIMIT_BACKEND"] = "memory"  # no shared state between test runs
 
 import pytest  # noqa: E402
 from fastapi.testclient import TestClient  # noqa: E402
@@ -172,3 +173,12 @@ def acct(db: Session):  # type: ignore[no-untyped-def]
 
     ids = {a.code: a.id for a in db.scalars(select(Account)).all()}
     return lambda code: ids[code]
+
+
+@pytest.fixture(autouse=True)
+def _reset_login_throttle() -> Iterator[None]:
+    from app.core.ratelimit import reset_memory_counters
+
+    reset_memory_counters()
+    yield
+    reset_memory_counters()

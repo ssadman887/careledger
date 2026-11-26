@@ -1,4 +1,5 @@
 from datetime import UTC, date, datetime
+from decimal import Decimal
 from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, Header, Query, status
@@ -73,7 +74,7 @@ def vendor_out(v: Vendor, actor: Actor) -> VendorOut:
     )
 
 
-def po_out(db: DbSession, po: PurchaseOrder) -> PurchaseOrderOut:
+def po_out(db: DbSession, po: PurchaseOrder, billed: Decimal | None = None) -> PurchaseOrderOut:
     return PurchaseOrderOut(
         id=po.id,
         po_number=po.po_number,
@@ -84,7 +85,7 @@ def po_out(db: DbSession, po: PurchaseOrder) -> PurchaseOrderOut:
         expected_date=po.expected_date,
         received_on=po.received_on,
         total=po.total,
-        billed=repo.billed_total_for_po(db, po.id),
+        billed=repo.billed_total_for_po(db, po.id) if billed is None else billed,
         notes=po.notes,
         lines=[POLineOut.model_validate(ln) for ln in po.lines],
     )
@@ -196,8 +197,9 @@ def list_pos(
     rows, total = repo.list_pos(
         db, params, status=status.value if status else None, vendor_id=vendor_id
     )
+    billed = repo.billed_totals_for_pos(db, [po.id for po in rows])
     return Page(
-        items=[po_out(db, po) for po in rows],
+        items=[po_out(db, po, billed[po.id]) for po in rows],
         total=total,
         page=params.page,
         page_size=params.page_size,

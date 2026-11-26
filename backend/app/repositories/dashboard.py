@@ -95,7 +95,7 @@ def monthly_pl(session: Session, start: date, end: date) -> list[MonthPL]:
 def revenue_by_department(session: Session, start: date, end: date) -> list[tuple[str, Decimal]]:
     rows = session.execute(
         text(
-            "SELECT coalesce(d.name, 'No department (discounts, adjustments)'),"
+            "SELECT coalesce(d.name, 'Discounts (no dept.)'),"
             " sum(l.credit - l.debit)"
             + _POSTED
             + "LEFT JOIN departments d ON d.id = l.department_id "
@@ -178,6 +178,19 @@ def invoices_issued(session: Session, start: date, end: date) -> tuple[int, Deci
         {"start": start, "end": end},
     ).one()
     return int(row[0]), _dec(row[1])
+
+
+def collection_rate(session: Session, start: date, end: date) -> tuple[Decimal, Decimal]:
+    """(collected, billed) for invoices issued in [start, end]: payments and adjustments made
+    against them so far, versus their totals. Voided invoices excluded."""
+    row = session.execute(
+        text(
+            "SELECT coalesce(sum(amount_paid), 0), coalesce(sum(total), 0) FROM invoices "
+            "WHERE status NOT IN ('draft', 'void') AND invoice_date BETWEEN :start AND :end"
+        ),
+        {"start": start, "end": end},
+    ).one()
+    return _dec(row[0]), _dec(row[1])
 
 
 def collections(session: Session, start: date, end: date) -> Decimal:

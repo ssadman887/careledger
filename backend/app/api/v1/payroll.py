@@ -93,8 +93,11 @@ def payslip_out(p: Payslip) -> PayslipOut:
     return out
 
 
-def run_out(db: DbSession, run: PayrollRun) -> PayrollRunOut:
-    approval = approvals_repo.get_by_entity(db, ApprovalKind.PAYROLL_RUN, run.id)
+def run_out(db: DbSession, run: PayrollRun, approval_id: int | None = -1) -> PayrollRunOut:
+    """`approval_id` is passed in by list endpoints (batch lookup); -1 means look it up."""
+    if approval_id == -1:
+        approval = approvals_repo.get_by_entity(db, ApprovalKind.PAYROLL_RUN, run.id)
+        approval_id = approval.id if approval else None
     return PayrollRunOut(
         id=run.id,
         run_number=run.run_number,
@@ -118,7 +121,7 @@ def run_out(db: DbSession, run: PayrollRun) -> PayrollRunOut:
         approved_at=run.approved_at,
         paid_at=run.paid_at,
         created_by_id=run.created_by_id,
-        approval_id=approval.id if approval else None,
+        approval_id=approval_id,
     )
 
 
@@ -258,8 +261,11 @@ def list_runs(
     year: int | None = None,
 ) -> Page[PayrollRunOut]:
     rows, total = repo.list_runs(db, params, status=status.value if status else None, year=year)
+    approval_ids = approvals_repo.ids_by_entities(
+        db, ApprovalKind.PAYROLL_RUN, [r.id for r in rows]
+    )
     return Page(
-        items=[run_out(db, r) for r in rows],
+        items=[run_out(db, r, approval_ids.get(r.id)) for r in rows],
         total=total,
         page=params.page,
         page_size=params.page_size,

@@ -53,6 +53,7 @@ def require_roles(*roles: RoleName) -> Callable[[Actor], Actor]:
             )
         return actor
 
+    _dep.allowed_roles = allowed  # type: ignore[attr-defined]  # read by app.authz
     return _dep
 
 

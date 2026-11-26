@@ -1,10 +1,13 @@
-"""Deterministic, idempotent seed. Run with: python -m seed"""
+"""Deterministic, idempotent seed. Run with: python -m seed  (add --reset to start from an empty
+database: drops, recreates and migrates it first; development only)."""
 
 import random
+import sys
 
 from faker import Faker
 
 from app.core.db import session_scope
+from seed.activity import seed_activity
 from seed.billing import seed_billing
 from seed.insurance import seed_insurance
 from seed.ledger import CHART_OF_ACCOUNTS, seed_ledger
@@ -17,6 +20,10 @@ SEED = 20260101
 
 
 def main() -> None:
+    if "--reset" in sys.argv[1:]:
+        from seed.reset import reset_database
+
+        reset_database()
     random.seed(SEED)
     Faker.seed(SEED)
     with session_scope() as session:
@@ -28,6 +35,7 @@ def main() -> None:
         seed_insurance(session)
         seed_phase4(session)
         seed_phase5(session)
+        seed_activity(session)
         seed_phase6(session)
     print(f"Seeded {len(roles)} roles and {len(DEMO_USERS)} demo users.")
     print(f"Chart of accounts: {len(CHART_OF_ACCOUNTS)} accounts, departments, fiscal periods.")
@@ -36,6 +44,8 @@ def main() -> None:
     print("AR/AP: approval policies, vendors, POs, bills, payments, a pending write-off, dunning.")
     print("Payroll: tax slabs, 31 employees, runs Jun-Oct paid, Nov awaiting approval.")
     print("Budgets: 2026 per department (salaries, supplies, revenue) with alerts.")
+    print("Activity: Jun-Nov 2026 encounters, invoices, payments, supplier bills, depreciation;")
+    print("          Jan-Sep closed; anomalies: large unpaid ICU invoice, suspense entry pending.")
     print("Notifications: pending approvals and budget alerts for the finance manager.")
     print("All demo users share DEMO_PASSWORD. See docs/DEMO_USERS.md.")
 

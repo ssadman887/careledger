@@ -33,6 +33,7 @@
           "auth"
         ],
         "summary": "Login",
+        "description": "Sign in. Repeated failures for an account or from an address are throttled (429).",
         "operationId": "auth_login",
         "requestBody": {
           "content": {
@@ -57,6 +58,16 @@
           },
           "401": {
             "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many failed sign-ins",
             "content": {
               "application/json": {
                 "schema": {

@@ -104,9 +104,17 @@
 - [x] Seed: notifications tidied so only pending approvals and budget alerts are unread
 - [x] Totals: pytest 380 (95% coverage), Vitest 33, Playwright 24
 
-## Phase 7: Hardening and demo readiness
+## Phase 7: Hardening and demo readiness ✅
 
-- [ ] Deterministic seed with 6 months of realistic activity (closed prior period, anomalies)
-- [ ] Playwright E2E for the demo script
-- [ ] N+1 queries, missing indexes, login rate limiting, authorization review of every endpoint
-- [ ] README with Mermaid architecture diagram, setup, demo credentials per role, screenshots
+- [x] Deterministic, idempotent seed with six months of realistic activity (about 780 invoices, payments, claims in every state, supplier bills, payroll, depreciation), January–September closed, pending approvals, a budget overrun and two anomalies
+- [x] Playwright E2E for the eight-step demo script (`frontend/tests/e2e/demo.spec.ts`)
+- [x] N+1 fixes (payroll runs, purchase orders) with query-count tests for list endpoints; migration `0020_indexes`
+- [x] Login rate limiting (per account and per address, Redis-backed, 429 + Retry-After)
+- [x] Authorization review of every endpoint: generated matrix (`docs/AUTHORIZATION.md`) and tests for anonymous access, role denial and auditor read-only access
+- [x] Dashboard: collection rate and receivables by age; invoices link to their audit trail
+- [x] README: Mermaid architecture diagram, native setup, demo credentials per role, demo script, screenshots, production requirements; `seed.ps1 -Reset`
+- [x] Totals: pytest 556 (95% coverage), Vitest 33, Playwright 31
+
+## Phase 8 (optional stretch): analytics module
+
+- [ ] Not started

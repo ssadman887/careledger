@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft, FileDown, Wallet } from "lucide-react";
+import { ArrowLeft, FileDown, History, Wallet } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
@@ -134,6 +134,13 @@ export default function InvoicePage() {
             <Button variant="outline" onClick={() => void openInvoicePdf(invoice.id, invoice.invoice_number)}>
               <FileDown /> PDF
             </Button>
+            {can(roles, "readAudit") && (
+              <Button asChild variant="outline">
+                <Link href={`/audit?entity_type=invoice&entity_id=${invoice.id}`}>
+                  <History /> Audit trail
+                </Link>
+              </Button>
+            )}
             {canBill && isDraft && (
               <Button onClick={() => setDialog("issue")} disabled={(toCents(invoice.total) ?? 0n) <= 0n}>
                 Issue invoice

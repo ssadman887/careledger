@@ -28,6 +28,12 @@ class Settings(BaseSettings):
 
     cors_origins: list[str] = ["http://localhost:3000"]
 
+    # Login throttling (failed attempts per window); backend "redis" or "memory".
+    rate_limit_backend: str = "redis"
+    login_max_failures_per_account: int = 5
+    login_max_failures_per_ip: int = 20
+    login_window_seconds: int = 900
+
     # Demo only: every seeded user shares this password (docs/DEMO_USERS.md).
     demo_password: str = "CareLedger!2026"
 

@@ -20,6 +20,7 @@ from app.models.audit import AuditLog
 from app.models.identity import RoleName
 from app.repositories import approvals as approvals_repo
 from app.repositories import dashboard as repo
+from app.services import ar
 from app.services.audit import Actor
 
 R = RoleName
@@ -152,7 +153,7 @@ def finance_section(session: Session, actor: Actor, as_of: date) -> Section:
                 "money",
                 f"Patients {_n(bal['1100'])} · insurers {_n(bal['1110'])}",
                 "/ar",
-            ),  # fmt: skip
+            ),
             Kpi("ap", "Payables", _m(-bal["2010"]), "money", "Account 2010", "/payables"),
             Kpi(
                 "revenue_ytd",
@@ -161,7 +162,7 @@ def finance_section(session: Session, actor: Actor, as_of: date) -> Section:
                 "money",
                 f"This month {_n(mtd.revenue)}",
                 "/reports",
-            ),  # fmt: skip
+            ),
             Kpi(
                 "expenses_ytd",
                 "Expenses YTD",
@@ -169,7 +170,7 @@ def finance_section(session: Session, actor: Actor, as_of: date) -> Section:
                 "money",
                 f"This month {_n(mtd.expenses)}",
                 "/reports",
-            ),  # fmt: skip
+            ),
             Kpi(
                 "net_income_ytd",
                 "Net income YTD",
@@ -178,7 +179,7 @@ def finance_section(session: Session, actor: Actor, as_of: date) -> Section:
                 "Revenue minus expenses",
                 "/reports",
                 "good" if net >= 0 else "bad",
-            ),  # fmt: skip
+            ),
             Kpi(
                 "pending_approvals",
                 "Waiting for you",
@@ -187,7 +188,7 @@ def finance_section(session: Session, actor: Actor, as_of: date) -> Section:
                 "Approval requests you can decide",
                 "/approvals",
                 "warning" if pending else "default",
-            ),  # fmt: skip
+            ),
             Kpi(
                 "budget_alerts",
                 "Budget alerts",
@@ -196,7 +197,7 @@ def finance_section(session: Session, actor: Actor, as_of: date) -> Section:
                 f"Raised in {as_of.year}",
                 "/budgets",
                 "warning" if alerts else "default",
-            ),  # fmt: skip
+            ),
         ],
     )
     trend = repo.monthly_pl(session, _months_back(as_of, 12), as_of)
@@ -248,6 +249,8 @@ def revenue_section(session: Session, as_of: date) -> Section:
     count, amount = repo.invoices_issued(session, month_start, as_of)
     collected = repo.collections(session, month_start, as_of)
     outstanding, overdue_n, overdue_amt = repo.patient_receivables(session, as_of)
+    window_start = as_of - timedelta(days=89)
+    paid, billed = repo.collection_rate(session, window_start, as_of)
     section = Section(
         "revenue",
         "Revenue cycle",
@@ -268,8 +271,16 @@ def revenue_section(session: Session, as_of: date) -> Section:
                 "money",
                 "Patient payments net of refunds",
                 "/payments",
-            ),  # fmt: skip
+            ),
             Kpi("patient_ar", "Patient balances", _m(outstanding), "money", "Open invoices", "/ar"),
+            Kpi(
+                "collection_rate",
+                "Collection rate, 90 days",
+                _pct(paid, billed),
+                "percent",
+                f"{_n(paid)} paid of {_n(billed)} invoiced since {window_start.isoformat()}",
+                "/payments",
+            ),
             Kpi(
                 "overdue",
                 "Overdue",
@@ -278,8 +289,29 @@ def revenue_section(session: Session, as_of: date) -> Section:
                 f"{overdue_n} invoices past due",
                 "/ar?tab=dunning",
                 "bad" if overdue_n else "good",
-            ),  # fmt: skip
+            ),
         ],
+    )
+    patient_aging = ar.aging(session, by="patient", as_of=as_of)
+    insurer_aging = ar.aging(session, by="insurer", as_of=as_of)
+    section.charts.append(
+        Chart(
+            "ar_aging",
+            "Receivables by age",
+            "bar",
+            [SeriesKey("patients", "Patients"), SeriesKey("insurers", "Insurers")],
+            [
+                ChartRow(
+                    f"{bucket} days",
+                    {
+                        "patients": _m(patient_aging.totals[bucket]),
+                        "insurers": _m(insurer_aging.totals.get(bucket, ZERO)),
+                    },
+                )
+                for bucket in patient_aging.totals
+            ],
+            "From the ledger as of the dashboard date; totals equal the AR control accounts.",
+        )
     )
     section.charts.append(
         Chart(
@@ -303,7 +335,7 @@ def revenue_section(session: Session, as_of: date) -> Section:
             [
                 ChartRow(method.replace("_", " ").title(), {"amount": _m(v)})
                 for method, v in repo.payment_mix(session, year_start, as_of)
-            ],  # fmt: skip
+            ],
         )
     )
     return section
@@ -325,7 +357,7 @@ def insurance_section(session: Session) -> Section:
                 "count",
                 "Submitted, under review or appealed",
                 "/claims",
-            ),  # fmt: skip
+            ),
             Kpi(
                 "insurer_outstanding",
                 "Awaiting insurer payment",
@@ -333,7 +365,7 @@ def insurance_section(session: Session) -> Section:
                 "money",
                 "Claimed minus paid and adjusted",
                 "/ar?tab=insurers",
-            ),  # fmt: skip
+            ),
             Kpi(
                 "denial_rate",
                 "Denial rate",
@@ -344,7 +376,7 @@ def insurance_section(session: Session) -> Section:
                 "warning"
                 if stats.adjudicated and stats.denied * 10 > stats.adjudicated
                 else "default",
-            ),  # fmt: skip
+            ),
         ],
     )
     section.charts.append(
@@ -356,7 +388,7 @@ def insurance_section(session: Session) -> Section:
             [
                 ChartRow(s.replace("_", " ").capitalize(), {"count": str(n), "amount": _m(v)})
                 for s, n, v in by_status
-            ],  # fmt: skip
+            ],
         )
     )
     section.tables.append(
@@ -367,7 +399,7 @@ def insurance_section(session: Session) -> Section:
                 TableColumn("code", "Code"),
                 TableColumn("description", "Reason"),
                 TableColumn("count", "Claims", "count"),
-            ],  # fmt: skip
+            ],
             [
                 {"code": c, "description": d, "count": str(n)}
                 for c, d, n in repo.top_denials(session)
@@ -435,7 +467,7 @@ def administration_section(session: Session, as_of: date) -> Section:
                 TableColumn("actor", "Who"),
                 TableColumn("action", "Action"),
                 TableColumn("entity", "Record"),
-            ],  # fmt: skip
+            ],
             [
                 {
                     "when": a.occurred_at.isoformat(),

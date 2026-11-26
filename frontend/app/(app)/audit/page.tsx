@@ -1,7 +1,8 @@
 "use client";
 
 import { ChevronDown, ChevronRight } from "lucide-react";
-import { Fragment, useCallback, useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { Fragment, Suspense, useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { ExportMenu } from "@/components/export-menu";
@@ -82,10 +83,22 @@ function Changes({ entry }: { entry: Schemas["AuditLogOut"] }) {
   );
 }
 
-export default function AuditPage() {
+/** Filters from the URL, so records can link to their own audit trail. */
+function initialFilters(params: { get(name: string): string | null }): Filters {
+  return {
+    ...EMPTY,
+    entity_type: params.get("entity_type") ?? ALL,
+    action: params.get("action") ?? ALL,
+    entity_id: params.get("entity_id") ?? "",
+    actor_label: params.get("actor") ?? "",
+  };
+}
+
+function AuditInner() {
+  const params = useSearchParams();
   const [facets, setFacets] = useState<Schemas["AuditFacetsOut"]>({ entity_types: [], actions: [] });
-  const [draft, setDraft] = useState<Filters>(EMPTY);
-  const [filters, setFilters] = useState<Filters>(EMPTY);
+  const [draft, setDraft] = useState<Filters>(() => initialFilters(params));
+  const [filters, setFilters] = useState<Filters>(() => initialFilters(params));
   const [page, setPage] = useState(1);
   const [data, setData] = useState<Schemas["Page_AuditLogOut_"] | null>(null);
   const [expanded, setExpanded] = useState<number | null>(null);
@@ -294,5 +307,13 @@ export default function AuditPage() {
         </Button>
       </div>
     </>
+  );
+}
+
+export default function AuditPage() {
+  return (
+    <Suspense fallback={<p className="text-muted-foreground">Loading…</p>}>
+      <AuditInner />
+    </Suspense>
   );
 }

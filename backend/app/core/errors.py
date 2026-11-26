@@ -29,12 +29,20 @@ class AppError(Exception):
     status_code: int = status.HTTP_400_BAD_REQUEST
     code: str = "bad_request"
 
-    def __init__(self, message: str, *, code: str | None = None, details: Any = None) -> None:
+    def __init__(
+        self,
+        message: str,
+        *,
+        code: str | None = None,
+        details: Any = None,
+        headers: dict[str, str] | None = None,
+    ) -> None:
         super().__init__(message)
         self.message = message
         if code is not None:
             self.code = code
         self.details = details
+        self.headers = headers or {}
 
 
 class NotFound(AppError):
@@ -96,7 +104,9 @@ LEDGER_SQLSTATES = {"P0001"}
 def register_error_handlers(app: FastAPI) -> None:
     @app.exception_handler(AppError)
     async def _app_error(_: Request, exc: AppError) -> JSONResponse:
-        return _envelope(exc.status_code, exc.code, exc.message, exc.details)
+        response = _envelope(exc.status_code, exc.code, exc.message, exc.details)
+        response.headers.update(exc.headers)
+        return response
 
     @app.exception_handler(StarletteHTTPException)
     async def _http_error(_: Request, exc: StarletteHTTPException) -> JSONResponse:

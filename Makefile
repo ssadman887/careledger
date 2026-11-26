@@ -41,6 +41,9 @@ migrate:
 seed:          ## Deterministic, idempotent synthetic data
 	cd backend && $(PY) -m alembic upgrade head && $(PY) -m seed
 
+seed-reset:    ## Drop, recreate and migrate the dev database, then seed
+	cd backend && $(PY) -m seed --reset
+
 test: test-backend test-frontend
 
 test-backend:  ## Needs PostgreSQL on localhost:5432

@@ -105,3 +105,86 @@ def test_validation_errors_never_echo_submitted_values(client: TestClient) -> No
     resp = client.post("/api/v1/auth/login", json={"login": 123, "password": "hunter2-secret"})
     assert resp.status_code == 422
     assert "hunter2-secret" not in resp.text
+
+
+def test_login_is_throttled_after_repeated_failures(client, demo_password) -> None:  # type: ignore[no-untyped-def]
+    from app.core.config import get_settings
+
+    limit = get_settings().login_max_failures_per_account
+    for _ in range(limit):
+        resp = client.post(
+            "/api/v1/auth/login", json={"login": "billing", "password": "wrong-pass"}
+        )
+        assert resp.status_code == 401
+    blocked = client.post(
+        "/api/v1/auth/login", json={"login": "BILLING", "password": demo_password}
+    )
+    assert blocked.status_code == 429  # even the right password, and the check is case-insensitive
+    assert blocked.json()["error"]["code"] == "rate_limited"
+    assert int(blocked.headers["retry-after"]) > 0
+    # Other accounts from the same address are still allowed (per-IP limit is higher).
+    assert (
+        client.post(
+            "/api/v1/auth/login", json={"login": "finance", "password": demo_password}
+        ).status_code
+        == 200
+    )
+
+
+def test_successful_login_clears_the_account_counter(client, demo_password) -> None:  # type: ignore[no-untyped-def]
+    from app.core.config import get_settings
+
+    limit = get_settings().login_max_failures_per_account
+    for _ in range(limit - 1):
+        client.post("/api/v1/auth/login", json={"login": "auditor", "password": "nope-nope"})
+    assert (
+        client.post(
+            "/api/v1/auth/login", json={"login": "auditor", "password": demo_password}
+        ).status_code
+        == 200
+    )
+    for _ in range(limit - 1):
+        client.post("/api/v1/auth/login", json={"login": "auditor", "password": "nope-nope"})
+    assert (
+        client.post(
+            "/api/v1/auth/login", json={"login": "auditor", "password": demo_password}
+        ).status_code
+        == 200
+    )
+
+
+def test_per_ip_limit_blocks_spraying_across_accounts(client) -> None:  # type: ignore[no-untyped-def]
+    from app.core.config import get_settings
+
+    for i in range(get_settings().login_max_failures_per_ip):
+        client.post("/api/v1/auth/login", json={"login": f"nobody{i}", "password": "x" * 10})
+    assert (
+        client.post(
+            "/api/v1/auth/login", json={"login": "someone", "password": "x" * 10}
+        ).status_code
+        == 429
+    )
+
+
+def test_memory_and_fallback_counters() -> None:
+    import redis
+
+    from app.core.ratelimit import FallbackCounter, MemoryCounter
+
+    class Down:
+        def hit(self, key: str, window: int) -> int:
+            raise redis.ConnectionError("down")
+
+        def get(self, key: str) -> tuple[int, int]:
+            raise redis.ConnectionError("down")
+
+        def clear(self, key: str) -> None:
+            raise redis.ConnectionError("down")
+
+    mem = MemoryCounter()
+    counter = FallbackCounter(Down(), mem)
+    assert counter.hit("k", 60) == 1 and counter.hit("k", 60) == 2
+    count, ttl = counter.get("k")
+    assert count == 2 and 0 < ttl <= 60
+    counter.clear("k")
+    assert counter.get("k") == (0, 0)

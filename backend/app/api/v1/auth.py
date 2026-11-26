@@ -1,9 +1,10 @@
 from typing import Any
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Request
 
 from app.core.deps import CurrentActor, DbSession
-from app.core.errors import ErrorEnvelope
+from app.core.errors import AuthenticationFailed, ErrorEnvelope, RateLimited
+from app.core.ratelimit import login_limiter
 from app.schemas.auth import LoginRequest, RefreshRequest, TokenPair
 from app.schemas.common import Message
 from app.schemas.users import UserOut
@@ -23,9 +24,29 @@ def _pair(tokens: auth_service.IssuedTokens) -> TokenPair:
     )
 
 
-@router.post("/login", response_model=TokenPair, responses=_401)
-def login(body: LoginRequest, db: DbSession) -> TokenPair:
-    return _pair(auth_service.login(db, body.login, body.password))
+@router.post(
+    "/login",
+    response_model=TokenPair,
+    responses={**_401, 429: {"model": ErrorEnvelope, "description": "Too many failed sign-ins"}},
+)
+def login(body: LoginRequest, db: DbSession, request: Request) -> TokenPair:
+    """Sign in. Repeated failures for an account or from an address are throttled (429)."""
+    limiter = login_limiter()
+    ip = request.client.host if request.client else "unknown"
+    blocked = limiter.check(body.login, ip)
+    if blocked:
+        raise RateLimited(
+            "Too many failed sign-in attempts. Try again later.",
+            details={"retry_after_seconds": blocked.retry_after},
+            headers={"Retry-After": str(blocked.retry_after)},
+        )
+    try:
+        tokens = auth_service.login(db, body.login, body.password)
+    except AuthenticationFailed:
+        limiter.failed(body.login, ip)
+        raise
+    limiter.succeeded(body.login, ip)
+    return _pair(tokens)
 
 
 @router.post("/refresh", response_model=TokenPair, responses=_401)

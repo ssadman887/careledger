@@ -60,6 +60,22 @@ def list_pos(
     return _page(session, stmt, params, sorts, "-order_date", PurchaseOrder.id.desc())
 
 
+def billed_totals_for_pos(session: Session, po_ids: Sequence[int]) -> dict[int, Decimal]:
+    """Billed amount per purchase order, for a page of POs in one query."""
+    if not po_ids:
+        return {}
+    stmt = (
+        select(VendorBill.purchase_order_id, func.sum(VendorBill.total))
+        .where(
+            VendorBill.purchase_order_id.in_(po_ids),
+            VendorBill.status.notin_(["rejected", "void"]),
+        )
+        .group_by(VendorBill.purchase_order_id)
+    )
+    totals = {int(po): Decimal(total) for po, total in session.execute(stmt).all() if po}
+    return {po_id: totals.get(po_id, Decimal("0")) for po_id in po_ids}
+
+
 def billed_total_for_po(
     session: Session, po_id: int, *, exclude_bill_id: int | None = None
 ) -> Decimal:
